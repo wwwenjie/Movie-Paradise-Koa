@@ -7,4 +7,11 @@ export default class Config {
     password: 'root',
     database: 'movie_paradise'
   }
+
+  public static readonly cors = {
+    allowOrigin: [
+      'http://localhost:8080',
+      'https://movie.jinwenjie.me'
+    ]
+  }
 }

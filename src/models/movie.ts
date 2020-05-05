@@ -24,6 +24,9 @@ export default class Movie extends Model<Movie> {
   poster: string
 
   @Column
+  poster_loc: string
+
+  @Column
   path: string
 
   @Column(DataType.JSON)
@@ -49,6 +52,15 @@ export default class Movie extends Model<Movie> {
 
   @Column(DataType.JSON)
   recs: [number]
+
+  @Column(DataType.JSON)
+  trailers: [{
+    _id: string
+    'm': number
+    'name': string
+    'play_url': string
+    'cover_url': string
+  }]
 
   @CreatedAt
   create_time: Date

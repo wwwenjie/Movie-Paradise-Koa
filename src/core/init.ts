@@ -3,6 +3,7 @@ import sequelize from './db'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as Router from 'koa-router'
+import config from '../config'
 
 export default class InitManager {
   private static app: any
@@ -10,6 +11,7 @@ export default class InitManager {
     InitManager.app = app
     ;(async () => {
       await InitManager.initLoadDatabase()
+      await InitManager.initLoadCORS()
       await InitManager.initLoadRouters()
     })().catch(err => {
       console.error(err)
@@ -37,5 +39,14 @@ export default class InitManager {
         console.log('Routes loaded')
       }
     }
+  }
+
+  private static async initLoadCORS (): Promise<void> {
+    InitManager.app.use(async (ctx, next) => {
+      if (config.cors.allowOrigin.includes(ctx.request.header.origin)) {
+        ctx.set('Access-Control-Allow-Origin', ctx.request.header.origin)
+      }
+      await next()
+    })
   }
 }
