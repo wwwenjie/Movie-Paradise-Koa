@@ -24,7 +24,7 @@ export default class Movie extends Model<Movie> {
   poster: string
 
   @Column
-  poster_loc: string
+  poster_fallback: string
 
   @Column
   path: string
@@ -60,6 +60,17 @@ export default class Movie extends Model<Movie> {
     'name': string
     'play_url': string
     'cover_url': string
+  }]
+
+  @Column(DataType.JSON)
+  backdrops: [{
+    aspect_ratio: number
+    file_path: string
+    height: number
+    iso_639_1: string
+    vote_average: number
+    vote_count: number
+    width: number
   }]
 
   @CreatedAt

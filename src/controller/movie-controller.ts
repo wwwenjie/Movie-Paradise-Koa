@@ -11,7 +11,14 @@ router.get('/', async (ctx) => {
 })
 
 router.post('/', async (ctx) => {
-  ctx.body = await MovieService.create(new Movie(ctx.request.body))
+  if (ctx.request.body instanceof Array) {
+    for (const movie of ctx.request.body) {
+      await MovieService.create(new Movie(movie))
+    }
+    ctx.body = ctx.request.body
+  } else {
+    ctx.body = await MovieService.create(new Movie(ctx.request.body))
+  }
 })
 
 router.get('/:id', async (ctx) => {
