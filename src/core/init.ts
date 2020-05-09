@@ -25,7 +25,7 @@ export default class InitManager {
     sequelize.addModels([path.resolve(__dirname, '../models/')])
     console.log('Models loaded')
     // change force to true to drop tables if already exist (data will lose)
-    await sequelize.sync({ force: false })
+    await sequelize.sync({ force: config.database.forceSync })
     console.log('Success sync database')
   }
 

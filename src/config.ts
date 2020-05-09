@@ -5,7 +5,8 @@ export default class Config {
     port: 3306,
     username: 'root',
     password: 'root',
-    database: 'movie_paradise'
+    database: 'movie_paradise',
+    forceSync: false
   }
 
   public static readonly cors = {

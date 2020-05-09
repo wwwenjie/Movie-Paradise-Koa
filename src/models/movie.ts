@@ -1,39 +1,60 @@
-import { Table, Column, Model, DataType, UpdatedAt, CreatedAt } from 'sequelize-typescript'
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  UpdatedAt,
+  CreatedAt,
+  BelongsToMany,
+  Index,
+  PrimaryKey,
+  AutoIncrement
+} from 'sequelize-typescript'
+import MovieGenre from './movie-genre'
+import Genre from './genre'
 
 @Table
 export default class Movie extends Model<Movie> {
-  @Column({
-    primaryKey: true,
-    autoIncrement: true
-  })
+  @PrimaryKey
+  @AutoIncrement
+  @Column
   _id: number
 
   @Column
   imdb_id: string
 
+  @Index
   @Column
   title: string
 
+  @Index
   @Column
   title_en: string
 
   @Column
   year: number
 
+  // Data redundancy for simplify operation
+  @Index
+  @Column
+  release: Date
+
   @Column
   poster: string
 
-  @Column
-  poster_fallback: string
-
+  @Index
   @Column
   path: string
+
+  @BelongsToMany(() => Genre, () => MovieGenre)
+  genres: Genre[]
 
   @Column(DataType.JSON)
   info: {
     director: string
     writer: string
     actors: string
+    // Data redundancy for simplify operation
     genre: string
     region: string
     language: string
@@ -47,7 +68,9 @@ export default class Movie extends Model<Movie> {
   rating: {
     tags: string
     douban_score: string
-    douban_votes: string
+    douban_votes: number
+    imdb_score: string
+    imdb_votes: number
   }
 
   @Column(DataType.JSON)
