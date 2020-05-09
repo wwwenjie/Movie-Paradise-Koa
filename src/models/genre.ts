@@ -1,4 +1,13 @@
-import { AutoIncrement, BelongsToMany, Column, Model, PrimaryKey, Scopes, Table, Unique } from 'sequelize-typescript'
+import {
+  AutoIncrement,
+  BelongsToMany,
+  Column,
+  Model,
+  PrimaryKey,
+  Scopes,
+  Table,
+  Unique
+} from 'sequelize-typescript'
 import Movie from './movie'
 import MovieGenre from './movie-genre'
 
@@ -19,10 +28,13 @@ import MovieGenre from './movie-genre'
   updatedAt: false
 })
 export default class Genre extends Model<Genre> {
+  @BelongsToMany(() => Movie, () => MovieGenre)
+  movies: Movie[]
+
   @PrimaryKey
   @AutoIncrement
   @Column
-  _id: number
+  genre_id: number
 
   @Column
   name: string
@@ -30,7 +42,4 @@ export default class Genre extends Model<Genre> {
   @Unique
   @Column
   name_en: string
-
-  @BelongsToMany(() => Movie, () => MovieGenre)
-  movies: Movie[]
 }

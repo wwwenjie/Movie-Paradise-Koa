@@ -1,17 +1,19 @@
 import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  UpdatedAt,
-  CreatedAt,
+  AutoIncrement,
   BelongsToMany,
+  DataType,
+  Column,
+  CreatedAt,
   Index,
+  Model,
   PrimaryKey,
-  AutoIncrement
+  Table,
+  UpdatedAt
 } from 'sequelize-typescript'
-import MovieGenre from './movie-genre'
 import Genre from './genre'
+import Actor from './actor'
+import MovieGenre from './movie-genre'
+import MovieActor from './movie-actor'
 
 @Table
 export default class Movie extends Model<Movie> {
@@ -49,10 +51,14 @@ export default class Movie extends Model<Movie> {
   @BelongsToMany(() => Genre, () => MovieGenre)
   genres: Genre[]
 
+  @BelongsToMany(() => Actor, () => MovieActor)
+  actors: Actor[]
+
   @Column(DataType.JSON)
   info: {
     director: string
     writer: string
+    // Data redundancy for simplify operation
     actors: string
     // Data redundancy for simplify operation
     genre: string

@@ -34,6 +34,7 @@ export default class MovieService {
     // get genre array from info
     const genreValues = movie.info.genre.split('/')
     // add genre to genre table if it dosent exist
+    // todo: import translate API to add name_en
     await Promise.all(genreValues.map(async (genre) => {
       await Genre.findOrCreate({
         where: {
