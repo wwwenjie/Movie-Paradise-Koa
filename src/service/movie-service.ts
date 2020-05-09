@@ -21,16 +21,13 @@ export default class MovieService {
   }
 
   public static async create (movie: Movie): Promise<Movie | null> {
-    // check unique
-    if (
-      await Movie.findOne({
-        where: {
-          _id: movie._id
-        }
-      }) !== null
-    ) {
-      throw Error('id have')
-    }
+    // save movie
+    const res = new Movie(movie)
+    await res.save()
+    return this.handelGenre(res)
+  }
+
+  private static async handelGenre (movie: Movie): Promise<Movie> {
     // get genre array from info
     const genreValues = movie.info.genre.split('/')
     // add genre to genre table if it dosent exist
@@ -50,16 +47,8 @@ export default class MovieService {
         }
       }
     })
-    // save movie
-    const res = new Movie(this.poster(movie))
-    await res.save()
     // save movie_genre
-    await res.$set('genres', genreModels)
-    return res.save()
-  }
-
-  public static poster (Movie: Movie): Movie {
-    Movie.poster = 'https://img.dianying.fm/poster/' + Movie._id.toString()
-    return Movie
+    await movie.$set('genres', genreModels)
+    return movie.save()
   }
 }

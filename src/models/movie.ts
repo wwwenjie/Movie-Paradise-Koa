@@ -1,5 +1,6 @@
 import {
   AutoIncrement,
+  BeforeCreate,
   BelongsToMany,
   DataType,
   Column,
@@ -17,6 +18,25 @@ import MovieActor from './movie-actor'
 
 @Table
 export default class Movie extends Model<Movie> {
+  @BeforeCreate
+  static async checkUnique (instance: Movie): Promise<boolean> {
+    const res = await Movie.findOne({
+      where: {
+        _id: instance._id
+      }
+    })
+    if (res === null) {
+      return true
+    } else {
+      throw Error(`duplicate primary key: ${instance._id}`)
+    }
+  }
+
+  @BeforeCreate
+  static changePoster (instance: Movie): void{
+    instance.poster = 'https://img.dianying.fm/poster/' + instance._id.toString()
+  }
+
   @PrimaryKey
   @AutoIncrement
   @Column

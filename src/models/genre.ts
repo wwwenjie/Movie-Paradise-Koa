@@ -36,6 +36,7 @@ export default class Genre extends Model<Genre> {
   @Column
   genre_id: number
 
+  @Unique
   @Column
   name: string
 
