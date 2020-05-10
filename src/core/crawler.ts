@@ -4,10 +4,14 @@ import logger from './log4js'
 import InitManager from './init'
 import Movie from '../models/movie'
 
+// todo: add crawl by path(ids dont have backdrops attribute)
+// todo: upload poster to alicloud oss and fast.io
+// todo: back up database function
 class GetMovieFromAPI {
   // store id already added, avoid unnecessary query
   private static readonly done: Set<number>=new Set()
   private static readonly task: Set<number>=new Set()
+  private static readonly msg: object={ email: 'jinwenjie@live.com', msg: 'Hello, I am getting your data through program, because there is no robots, please contact me if it bothers you' }
 
   public static async go (): Promise<void> {
     setInterval(() => {
@@ -36,7 +40,7 @@ class GetMovieFromAPI {
     try {
       // relieve server pressure
       await this.sleep(5000)
-      const res = await superagent.get(`https://api.dianying.fm/movies?ids=${movieIds}`)
+      const res = await superagent.get(`https://api.dianying.fm/movies?ids=${movieIds}`).query(this.msg)
       logger.info(`get movies from https://api.dianying.fm/movies?ids=${movieIds}`)
       await Promise.all(res.body.map(async (movie) => {
         try {

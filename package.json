@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "serve": "ts-node-dev src/app.ts",
-    "get": "ts-node-dev src/core/superagent.ts",
+    "get": "ts-node-dev src/core/crawler.ts",
     "build": "tsc"
   },
   "dependencies": {
