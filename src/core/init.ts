@@ -18,7 +18,7 @@ export default class InitManager {
     })
   }
 
-  private static async initLoadDatabase (): Promise<void> {
+  public static async initLoadDatabase (): Promise<void> {
     await sequelize.authenticate()
     console.log('Database connection has been established successfully.')
     // not async function

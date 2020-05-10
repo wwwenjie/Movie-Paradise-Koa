@@ -6,7 +6,9 @@ const router = new Router({
 })
 
 router.get('/', async (ctx) => {
-  ctx.body = await MovieService.findByGenre(ctx.request.body.genre)
+  // todo: support genre(newest, trending...)
+  // todo: limit
+  ctx.body = await MovieService.findAll()
 })
 
 router.post('/', async (ctx) => {

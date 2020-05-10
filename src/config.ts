@@ -6,6 +6,7 @@ export default class Config {
     username: 'root',
     password: 'root',
     database: 'movie_paradise',
+    // database already saved lots of data, DO NOT change it
     forceSync: false
   }
 

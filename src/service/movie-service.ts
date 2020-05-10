@@ -4,8 +4,10 @@ import { Op } from 'sequelize'
 import Actor from '../models/actor'
 
 export default class MovieService {
-  public static async findByAll (): Promise<Movie[] | null> {
-    return Movie.findAll()
+  public static async findAll (): Promise<Movie[] | null> {
+    return Movie.findAll({
+      limit: 8
+    })
   }
 
   public static async findById (_id: number): Promise<Movie | null> {
@@ -30,12 +32,21 @@ export default class MovieService {
     return actors.movies
   }
 
-  public static async create (movie: Movie): Promise<Movie | null> {
+  public static async create (movie: Movie): Promise<Movie> {
     // save movie
-    const res = new Movie(movie)
-    await res.save()
-    await this.handelGenre(res)
-    return this.handelActor(res)
+    const res = await Movie.findOne({
+      where: {
+        _id: movie._id
+      }
+    })
+    if (res === null) {
+      const res = new Movie(movie)
+      await res.save()
+      await this.handelGenre(res)
+      return this.handelActor(res)
+    } else {
+      return movie
+    }
   }
 
   private static async handelGenre (movie: Movie): Promise<Movie> {
