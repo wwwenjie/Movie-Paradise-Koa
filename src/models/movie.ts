@@ -36,8 +36,13 @@ export default class Movie extends Model<Movie> {
   static setValues (instance: Movie): void{
     // change poster
     instance.poster = 'https://img.dianying.fm/poster/' + instance._id.toString()
-    const reg = /\d{4}-\d{2}-\d{2}/
-    instance.release = new Date(instance.info.release.match(reg)[0])
+    // add release
+    const regex = RegExp(/\d{4}-\d{2}-\d{2}/)
+    if (regex.test(instance.info.release)) {
+      instance.release = new Date(instance.info.release.match(regex)[0])
+    } else {
+      instance.release = new Date(instance.year)
+    }
   }
 
   @PrimaryKey
