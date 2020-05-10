@@ -1,6 +1,7 @@
 import Movie from '../models/movie'
 import Genre from '../models/genre'
 import { Op } from 'sequelize'
+import Actor from '../models/actor'
 
 export default class MovieService {
   public static async findByAll (): Promise<Movie[] | null> {
@@ -20,11 +21,21 @@ export default class MovieService {
     return genres.movies
   }
 
+  public static async findByActor (actor: string): Promise<Movie[]> {
+    const actors = await Actor.scope('movies').findOne({
+      where: {
+        name: actor
+      }
+    })
+    return actors.movies
+  }
+
   public static async create (movie: Movie): Promise<Movie | null> {
     // save movie
     const res = new Movie(movie)
     await res.save()
-    return this.handelGenre(res)
+    await this.handelGenre(res)
+    return this.handelActor(res)
   }
 
   private static async handelGenre (movie: Movie): Promise<Movie> {
@@ -49,6 +60,28 @@ export default class MovieService {
     })
     // save movie_genre
     await movie.$set('genres', genreModels)
+    return movie.save()
+  }
+
+  private static async handelActor (movie: Movie): Promise<Movie> {
+    // same with handelGenre
+    // if it possible, find an API to add actors info by name
+    const actorValues = movie.info.actors.split('/')
+    await Promise.all(actorValues.map(async (actor) => {
+      await Actor.findOrCreate({
+        where: {
+          name: actor
+        }
+      })
+    }))
+    const actorModels = await Actor.findAll({
+      where: {
+        name: {
+          [Op.in]: actorValues
+        }
+      }
+    })
+    await movie.$set('actors', actorModels)
     return movie.save()
   }
 }

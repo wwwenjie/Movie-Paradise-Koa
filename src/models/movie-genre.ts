@@ -8,11 +8,11 @@ import Movie from './movie'
   updatedAt: false
 })
 export default class MovieGenre extends Model<MovieGenre> {
-  @ForeignKey(() => Movie)
-  @Column
-  movie_id: number
-
   @ForeignKey(() => Genre)
   @Column
   genre_id: number
+
+  @ForeignKey(() => Movie)
+  @Column
+  movie_id: number
 }

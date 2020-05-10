@@ -33,8 +33,11 @@ export default class Movie extends Model<Movie> {
   }
 
   @BeforeCreate
-  static changePoster (instance: Movie): void{
+  static setValues (instance: Movie): void{
+    // change poster
     instance.poster = 'https://img.dianying.fm/poster/' + instance._id.toString()
+    const reg = /\d{4}-\d{2}-\d{2}/
+    instance.release = new Date(instance.info.release.match(reg)[0])
   }
 
   @PrimaryKey

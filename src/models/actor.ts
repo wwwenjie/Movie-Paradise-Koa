@@ -2,12 +2,11 @@ import {
   AutoIncrement,
   BelongsToMany,
   Column,
-  CreatedAt,
+  Index,
   Model,
   PrimaryKey,
   Scopes,
-  Table,
-  UpdatedAt
+  Table
 } from 'sequelize-typescript'
 import Movie from './movie'
 import MovieActor from './movie-actor'
@@ -24,7 +23,10 @@ import MovieActor from './movie-actor'
   }
 }))
 
-@Table
+@Table({
+  createdAt: false,
+  updatedAt: false
+})
 export default class Actor extends Model<Actor> {
   @BelongsToMany(() => Movie, () => MovieActor)
   movies: Movie[]
@@ -34,9 +36,11 @@ export default class Actor extends Model<Actor> {
   @Column
   actor_id: number
 
+  @Index
   @Column
   name: string
 
+  @Index
   @Column
   name_en: string
 
@@ -54,10 +58,4 @@ export default class Actor extends Model<Actor> {
 
   @Column
   alt: string
-
-  @CreatedAt
-  create_time: Date
-
-  @UpdatedAt
-  update_time: Date
 }

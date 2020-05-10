@@ -8,11 +8,11 @@ import Actor from './actor'
   updatedAt: false
 })
 export default class MovieActor extends Model<MovieActor> {
-  @ForeignKey(() => Movie)
-  @Column
-  movie_id: number
-
   @ForeignKey(() => Actor)
   @Column
   actor_id: number
+
+  @ForeignKey(() => Movie)
+  @Column
+  movie_id: number
 }
