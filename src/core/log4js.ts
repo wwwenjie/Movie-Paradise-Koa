@@ -1,7 +1,14 @@
 import { configure, getLogger } from 'log4js'
 configure({
-  appenders: { Movie: { type: 'file', filename: 'movie.log' } },
-  categories: { default: { appenders: ['Movie'], level: 'info' } }
+  appenders: {
+    Movie: { type: 'file', filename: 'movie.log' },
+    OSS: { type: 'file', filename: 'oss.log' }
+  },
+  categories: {
+    default: { appenders: ['Movie'], level: 'info' },
+    Movie: { appenders: ['Movie'], level: 'info' },
+    OSS: { appenders: ['OSS'], level: 'info' }
+  }
 })
-const logger = getLogger('Movie')
-export default logger
+export const movieLogger = getLogger('Movie')
+export const ossLogger = getLogger('OSS')

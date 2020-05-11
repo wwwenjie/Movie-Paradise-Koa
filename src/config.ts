@@ -6,7 +6,7 @@ export default class Config {
     username: 'root',
     password: 'root',
     database: 'movie_paradise',
-    // database already saved lots of data, DO NOT change it
+    // DO NOT change it unless you know what it is
     forceSync: false
   }
 
@@ -16,4 +16,15 @@ export default class Config {
       'https://movie.jinwenjie.me'
     ]
   }
+
+  // replace with your alicloud oss config
+  public static readonly ossConfig = {
+    accessKeyId: '',
+    accessKeySecret: '',
+    bucket: '',
+    region: ''
+  }
+
+  // replace with your local path
+  public static readonly ossLocalPath = ''
 }

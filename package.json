@@ -25,6 +25,7 @@
     "sequelize-typescript": "^1.1.0"
   },
   "devDependencies": {
+    "@types/ali-oss": "^6.0.5",
     "@types/bluebird": "^3.5.30",
     "@types/jest": "^25.2.1",
     "@types/koa": "^2.11.3",
@@ -35,6 +36,7 @@
     "@types/validator": "^13.0.0",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
     "@typescript-eslint/parser": "^2.30.0",
+    "ali-oss": "^6.7.0",
     "eslint": "^6.8.0",
     "eslint-config-standard-with-typescript": "^16.0.0",
     "eslint-plugin-import": "^2.20.2",

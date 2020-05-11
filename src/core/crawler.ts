@@ -1,10 +1,10 @@
-import * as superagent from 'superagent'
+import * as request from 'superagent'
 import MovieService from '../service/movie-service'
-import logger from './log4js'
+import { movieLogger as logger } from './log4js'
 import InitManager from './init'
 import Movie from '../models/movie'
+import OSS from '../util/oss'
 
-// todo: upload poster to alicloud oss and fast.io
 // todo: back up database function
 class GetMovieFromAPI {
   // fastMode dont have backdrops,use ids: number. set to false to use path: string
@@ -47,7 +47,7 @@ class GetMovieFromAPI {
   private static async getMovies (query: string): Promise<void> {
     try {
       logger.info(`get movies from ${this.url}${query}`)
-      const res = await superagent.get(this.url + query).query(this.msg)
+      const res = await request.get(this.url + query).query(this.msg)
       if (this.fastMode) {
         await this.addMovieById(res.body)
       } else {
@@ -62,7 +62,6 @@ class GetMovieFromAPI {
     await Promise.all(movies.map(async (movie) => {
       // get movie trailer
       try {
-        await this.sleep(1000)
         movie.trailers = await this.getTrailer(movie._id.toString())
       } catch (e) {
         logger.error(e)
@@ -71,6 +70,8 @@ class GetMovieFromAPI {
       try {
         const movieRes = await MovieService.create(movie)
         logger.info(`created: ${movieRes.title} ${movieRes._id}`)
+        // back up poster
+        await OSS.putPoster(movieRes.poster)
       } catch (err) {
         logger.error(err)
       } finally {
@@ -99,6 +100,8 @@ class GetMovieFromAPI {
     try {
       const movieRes = await MovieService.create(movie)
       logger.info(`created: ${movieRes.title} ${movieRes._id}`)
+      // back up poster
+      await OSS.putPoster(movieRes.poster)
     } catch (err) {
       logger.error(err)
     } finally {
@@ -108,7 +111,7 @@ class GetMovieFromAPI {
       this.task.delete(movie.path)
       // add recs movies path to task
       if (this.task.size < 15) {
-        const res = await superagent.get(`https://api.dianying.fm/movies?ids=${this.parseIds(movie.recs)}`).query(this.msg)
+        const res = await request.get(`https://api.dianying.fm/movies?ids=${this.parseIds(movie.recs)}`).query(this.msg)
         res.body.map(movie => {
           if (!this.done.has(movie.path)) {
             this.task.add(movie.path)
@@ -142,8 +145,14 @@ class GetMovieFromAPI {
       logger.info(`init path is ${initMovie[0].path}`)
       this.task.add(initMovie[0].path)
     }
-    // load done
-    const doneMovies = await Movie.findAll({ attributes: ['_id', 'path'] })
+    // load done from database
+    const doneMovies = await Movie.findAll({
+      attributes: ['_id', 'path'],
+      limit: 500,
+      order: [
+        ['create_time', 'DESC']
+      ]
+    })
     doneMovies.map(movie => {
       this.done.add(this.fastMode ? movie._id : movie.path)
     })
@@ -159,7 +168,7 @@ class GetMovieFromAPI {
   }
 
   private static async getTrailer (movieId: string): Promise<object[]|null> {
-    const res = await superagent.get(`https://api.dianying.fm/trailers/${movieId}`)
+    const res = await request.get(`https://api.dianying.fm/trailers/${movieId}`)
     return res.body
   }
 
