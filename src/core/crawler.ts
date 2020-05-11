@@ -9,6 +9,8 @@ import OSS from '../util/oss'
 class GetMovieFromAPI {
   // fastMode dont have backdrops,use ids: number. set to false to use path: string
   private static readonly fastMode: boolean = true
+  // use for fastMode, multiple request at a same time
+  private static readonly concurrencyMode: boolean = false
   // store id already added, avoid unnecessary query
   private static readonly done: Set<number|string> = new Set()
   private static readonly task: Set<number|string> = new Set()
@@ -121,18 +123,32 @@ class GetMovieFromAPI {
   }
 
   private static async addMovieById (movies): Promise<void> {
-    await Promise.all(movies.map(async (movie) => {
-      await this.sleep(1000)
-      await this.createMovie(movie)
-      // add recs movies to task
-      if (movie.recs !== undefined) {
-        movie.recs.map(id => {
-          if (!this.done.has(id)) {
-            this.task.add(id)
-          }
-        })
+    if (this.concurrencyMode) {
+      await Promise.all(movies.map(async (movie) => {
+        await this.createMovie(movie)
+        // add recs movies to task
+        if (movie.recs !== undefined) {
+          movie.recs.map(id => {
+            if (!this.done.has(id)) {
+              this.task.add(id)
+            }
+          })
+        }
+      }))
+    } else {
+      for (const movie of movies) {
+        await this.sleep(1000)
+        await this.createMovie(movie)
+        // add recs movies to task
+        if (movie.recs !== undefined) {
+          movie.recs.map(id => {
+            if (!this.done.has(id)) {
+              this.task.add(id)
+            }
+          })
+        }
       }
-    }))
+    }
   }
 
   private static async addMovieByPath (movie): Promise<void> {
@@ -168,7 +184,8 @@ class GetMovieFromAPI {
       // remove this movie form task
       this.task.delete(movie._id)
       // back up poster
-      await OSS.putPoster(movie._id)
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      OSS.putPoster(movie._id)
     } catch (err) {
       logger.error(err)
       logger.error(movie)
