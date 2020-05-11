@@ -1,6 +1,6 @@
 import * as request from 'superagent'
 import MovieService from '../service/movie-service'
-import { movieLogger as logger } from './log4js'
+import { movieLogger as logger, httpLogger } from './log4js'
 import InitManager from './init'
 import Movie from '../models/movie'
 import OSS from '../util/oss'
@@ -32,6 +32,7 @@ class GetMovieFromAPI {
       console.log(this.exist)
     }, 5000)
     setInterval(() => {
+      httpLogger.info('Get >>>>>> (msg) https://api.dianying.fm/movies')
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       request.get('https://api.dianying.fm/movies').query(this.msg)
     }, 60000)
@@ -107,6 +108,7 @@ class GetMovieFromAPI {
   private static async getMovies (query: string): Promise<void> {
     try {
       logger.info(`get movies from ${this.url}${query}`)
+      httpLogger.info(`Get >>>>>> (getMovies) ${this.url + query}`)
       const res = await request.get(this.url + query)
       if (this.fastMode) {
         await this.addMovieById(res.body)
@@ -120,6 +122,7 @@ class GetMovieFromAPI {
 
   private static async addMovieById (movies): Promise<void> {
     await Promise.all(movies.map(async (movie) => {
+      await this.sleep(1000)
       await this.createMovie(movie)
       // add recs movies to task
       if (movie.recs !== undefined) {
@@ -136,6 +139,7 @@ class GetMovieFromAPI {
     await this.createMovie(movie)
     // add recs movies path to task
     if (this.task.size < 15) {
+      httpLogger.info(`Get >>>>>> (addMovieByPath) https://api.dianying.fm/movies?ids=${this.parseIds(movie.recs)}`)
       const res = await request.get(`https://api.dianying.fm/movies?ids=${this.parseIds(movie.recs)}`)
       res.body.map(movie => {
         if (!this.done.has(movie.path)) {
@@ -146,7 +150,6 @@ class GetMovieFromAPI {
   }
 
   private static async createMovie (movie: Movie): Promise<void> {
-    await this.sleep(500)
     await this.getTrailer(movie)
     // create movie
     try {
@@ -174,6 +177,7 @@ class GetMovieFromAPI {
 
   private static async getTrailer (movie: Movie): Promise<void> {
     try {
+      httpLogger.info(`Get >>>>>> (getTrailer) https://api.dianying.fm/trailers/${movie._id}`)
       const res = await request.get(`https://api.dianying.fm/trailers/${movie._id}`)
       movie.trailers = res.body
     } catch (err) {
