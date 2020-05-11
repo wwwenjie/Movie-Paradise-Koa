@@ -6,9 +6,14 @@ const router = new Router({
 })
 
 router.get('/', async (ctx) => {
-  // todo: support genre(newest, trending...)
   // todo: limit
-  ctx.body = await MovieService.findAll()
+  const genre = ctx.query.genre
+  const special = new Map()
+    // newest
+    .set('newest', MovieService.findAll())
+    // search
+    .set('key', MovieService.findAll())
+  ctx.body = special.has(genre) ? await special.get(genre) : await MovieService.findByGenre(genre)
 })
 
 router.post('/', async (ctx) => {
