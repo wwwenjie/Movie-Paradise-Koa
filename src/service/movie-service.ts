@@ -32,8 +32,12 @@ export default class MovieService {
     return actors.movies
   }
 
-  public static async create (movie: Movie): Promise<Movie|null> {
-    // save movie
+  /**
+   * create movie, success: true exist: false error: throw
+   * @param movie: Movie
+   * @return flag: boolean
+   */
+  public static async create (movie: Movie): Promise<boolean> {
     const res = await Movie.findOne({
       where: {
         _id: movie._id
@@ -41,18 +45,23 @@ export default class MovieService {
     })
     if (res === null) {
       const res = new Movie(movie)
+      // save id first
       await res.save()
       // oops, cartoon has no actors🤣
       if (res.info.actors !== undefined) {
         await this.handelActor(res)
       }
-      return this.handelGenre(res)
+      // sometimes, genre also is undefined
+      if (res.info.genre !== undefined) {
+        await this.handelGenre(res)
+      }
+      return true
     } else {
-      return null
+      return false
     }
   }
 
-  private static async handelGenre (movie: Movie): Promise<Movie> {
+  private static async handelGenre (movie: Movie): Promise<void> {
     // get genre array from info
     const genreValues = movie.info.genre.split('/')
     // add genre to genre table if it dosent exist
@@ -74,10 +83,10 @@ export default class MovieService {
     })
     // save movie_genre
     await movie.$set('genres', genreModels)
-    return movie.save()
+    await movie.save()
   }
 
-  private static async handelActor (movie: Movie): Promise<Movie> {
+  private static async handelActor (movie: Movie): Promise<void> {
     // same with handelGenre
     // if it possible, find an API to add actors info by name
     const actorValues = movie.info.actors.split('/')
@@ -96,6 +105,6 @@ export default class MovieService {
       }
     })
     await movie.$set('actors', actorModels)
-    return movie.save()
+    await movie.save()
   }
 }
