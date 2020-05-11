@@ -32,7 +32,7 @@ export default class MovieService {
     return actors.movies
   }
 
-  public static async create (movie: Movie): Promise<Movie> {
+  public static async create (movie: Movie): Promise<Movie|null> {
     // save movie
     const res = await Movie.findOne({
       where: {
@@ -42,10 +42,13 @@ export default class MovieService {
     if (res === null) {
       const res = new Movie(movie)
       await res.save()
-      await this.handelGenre(res)
-      return this.handelActor(res)
+      // oops, cartoon has no actors🤣
+      if (res.info.actors !== undefined) {
+        await this.handelActor(res)
+      }
+      return this.handelGenre(res)
     } else {
-      return movie
+      return null
     }
   }
 

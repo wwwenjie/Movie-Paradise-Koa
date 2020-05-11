@@ -8,11 +8,11 @@ export default class OSS {
   private static readonly oss = new Oss(config.ossConfig)
   private static readonly localPath: string = config.ossLocalPath
   private static readonly extend: string = '.jfif'
+  private static readonly url: string = 'https://img.dianying.fm/poster/'
 
-  static async putPoster (url: string): Promise<any> {
-    const id = url.substring(url.lastIndexOf('/') + 1, url.length)
+  static async putPoster (id: number): Promise<any> {
     try {
-      const res = await request.get(url)
+      const res = await request.get(this.url + id.toString())
       fs.writeFile(`${this.localPath}${id}${this.extend}`, res.body, function (err) {
         if (err !== null) {
           logger.error('put local error:', id)
