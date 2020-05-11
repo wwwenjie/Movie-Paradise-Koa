@@ -46,13 +46,13 @@ class GetMovieFromAPI {
 
   private static async getMovies (query: string): Promise<void> {
     try {
+      logger.info(`get movies from ${this.url}${query}`)
       const res = await superagent.get(this.url + query).query(this.msg)
       if (this.fastMode) {
         await this.addMovieById(res.body)
       } else {
         await this.addMovieByPath(res.body)
       }
-      logger.info(`get movies from ${this.url}${query}`)
     } catch (err) {
       logger.error(err)
     }
@@ -61,12 +61,11 @@ class GetMovieFromAPI {
   private static async addMovieById (movies): Promise<void> {
     await Promise.all(movies.map(async (movie) => {
       // get movie trailer
-      if (!this.fastMode) {
-        try {
-          movie.trailers = await this.getTrailer(movie._id.toString())
-        } catch (e) {
-          logger.error(e)
-        }
+      try {
+        await this.sleep(1000)
+        movie.trailers = await this.getTrailer(movie._id.toString())
+      } catch (e) {
+        logger.error(e)
       }
       // create movie
       try {
