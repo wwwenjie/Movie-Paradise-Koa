@@ -7,29 +7,35 @@ import OSS from '../util/oss'
 
 // todo: back up database function
 class GetMovieFromAPI {
-  // fastMode dont have backdrops,use ids: number. set to false to use path: string
+  // fastMode dont have backdrops,use ids: number. set to false to use fully mode
   private static readonly fastMode: boolean = true
   // use for fastMode, multiple request at a same time
   private static readonly concurrencyMode: boolean = false
+  // use for fastMode, dont request poster and trailer
+  private static readonly pureFast: boolean = true
+  // set initTaskNumber, number of movies init get, fast mode init id will be number * 9(recs)
+  private static readonly initTaskNumber: number = 50
+  // set initDoneRate, the higher the less exist, too high may cause task empty
+  private static readonly initDoneRate: number =50
   // store id already added, avoid unnecessary query
   private static readonly done: Set<number|string> = new Set()
   private static readonly task: Set<number|string> = new Set()
   private static readonly msg: object = { email: 'jinwenjie@live.com', msg: 'Hello, I am getting your data through program, because there is no robots, please contact me if it bothers you, sorry for the inconvenient' }
   private static exist: number = 0
   private static url: string
-
+// 减少
   public static async go (): Promise<void> {
     await InitManager.initLoadDatabase()
     await this.initTask()
     setInterval(() => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.handleTask()
-    }, this.fastMode ? 15000 : 5000)
+    }, this.fastMode ? 15000 + Math.floor(Math.random() * 8000) : 5000 + Math.floor(Math.random() * 2000))
     setInterval(() => {
       console.log('=========task===========')
       console.log(this.task.size)
       console.log('=========done===========')
-      console.log(this.done.size)
+      console.log(this.done.size - (this.fastMode ? this.initTaskNumber * this.initDoneRate : this.initTaskNumber))
       console.log('=========exist==========')
       console.log(this.exist)
     }, 5000)
@@ -41,47 +47,50 @@ class GetMovieFromAPI {
   }
 
   private static async initTask (): Promise<void> {
+    logger.info('========start========')
+    logger.info(new Date(Date.now()))
+    logger.info(`crawler mode: ${this.fastMode ? 'fast' : 'fully'}`)
     // set url by mode
     this.url = this.fastMode ? 'https://api.dianying.fm/movies?ids=' : 'https://api.dianying.fm/movies/'
-    // get least movie as init movie
-    // make sure you have at least one movie in database
-    const initMovie = await Movie.findAll({
-      attributes: ['recs', 'path'],
-      limit: 20,
+    // it may cause task empty
+    // load done from database
+    const doneMovies = await Movie.findAll({
+      attributes: ['_id', 'path'],
+      limit: this.fastMode ? this.initTaskNumber * this.initDoneRate : this.initTaskNumber,
       order: [
         ['create_time', 'DESC']
       ]
     })
-    // make sure movie.recs is exist
-    let randomIndex = Math.floor(Math.random() * 20)
-    while (initMovie[randomIndex].recs === undefined) {
-      randomIndex = Math.floor(Math.random() * 20)
-    }
-    logger.info('========start========')
-    logger.info(new Date(Date.now()))
-    logger.info(`crawler mode: ${this.fastMode ? 'fast' : 'fully'}`)
-    // return init param
+    doneMovies.map(movie => {
+      this.done.add(this.fastMode ? movie._id : movie.path)
+    })
+    // get least movies as init movies
+    // make sure you have at least one movie in database
+    const initMovie = await Movie.findAll({
+      attributes: ['recs', 'path'],
+      limit: this.initTaskNumber,
+      order: [
+        ['create_time', 'DESC']
+      ]
+    })
+    // add task
     if (this.fastMode) {
-      logger.info(`init ids is ${initMovie[randomIndex].recs.toString()}`)
-      initMovie[randomIndex].recs.map(id => {
-        this.task.add(id)
+      initMovie.map(movie => {
+        if (movie.recs !== undefined) {
+          movie.recs.map(id => {
+            if (!this.done.has(id)) {
+              this.task.add(id)
+            }
+          })
+        }
       })
     } else {
-      logger.info(`init path is ${initMovie[randomIndex].path}`)
-      this.task.add(initMovie[randomIndex].path)
+      initMovie.map(movie => {
+        if (!this.done.has(movie.path)) {
+          this.task.add(movie.path)
+        }
+      })
     }
-    // it may cause task empty
-    // load done from database
-    // const doneMovies = await Movie.findAll({
-    //   attributes: ['_id', 'path'],
-    //   limit: 500,
-    //   order: [
-    //     ['create_time', 'DESC']
-    //   ]
-    // })
-    // doneMovies.map(movie => {
-    //   this.done.add(this.fastMode ? movie._id : movie.path)
-    // })
   }
 
   private static async handleTask (): Promise<void> {
@@ -90,10 +99,10 @@ class GetMovieFromAPI {
         const ids = []
         let counter = 0
         this.task.forEach((id) => {
-          if (counter < 15) {
+          if (counter < 20) {
             ids.push(id)
             this.task.delete(id)
-            counter = counter + 1
+            counter++
           }
         })
         await this.getMovies(this.parseIds(ids))
@@ -166,7 +175,9 @@ class GetMovieFromAPI {
   }
 
   private static async createMovie (movie: Movie): Promise<void> {
-    await this.getTrailer(movie)
+    if (!this.pureFast) {
+      await this.getTrailer(movie)
+    }
     // create movie
     try {
       console.log('========creating')
@@ -184,8 +195,10 @@ class GetMovieFromAPI {
       // remove this movie form task
       this.task.delete(movie._id)
       // back up poster
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      OSS.putPoster(movie._id)
+      if (!this.pureFast) {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        OSS.putPoster(movie._id)
+      }
     } catch (err) {
       logger.error(err)
       logger.error(movie)
