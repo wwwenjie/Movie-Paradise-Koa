@@ -7,22 +7,19 @@ import OSS from '../util/oss'
 
 // todo: back up database function
 class GetMovieFromAPI {
-  // fastMode dont have backdrops,use ids: number. set to false to use fully mode
-  private static readonly fastMode: boolean = true
+  // default: fastMode dont have backdrops, use ids to get
   // use for fastMode, multiple request at a same time
   private static readonly concurrencyMode: boolean = false
   // use for fastMode, dont request poster and trailer
   private static readonly pureFast: boolean = true
   // set initTaskNumber, number of movies init get, fast mode init id will be number * 9(recs)
-  private static readonly initTaskNumber: number = 50
-  // set initDoneRate, the higher the less exist, too high may cause task empty
-  private static readonly initDoneRate: number =50
+  private static readonly initTaskNumber: number = 100
   // store id already added, avoid unnecessary query
-  private static readonly done: Set<number|string> = new Set()
+  private static readonly all: Set<number|string> = new Set()
   private static readonly task: Set<number|string> = new Set()
   private static readonly msg: object = { email: 'jinwenjie@live.com', msg: 'Hello, I am getting your data through program, because there is no robots, please contact me if it bothers you, sorry for the inconvenient' }
-  private static exist: number = 0
-  private static url: string
+  private static readonly url: string = 'https://api.dianying.fm/movies?ids='
+  private static new: number = 0
 
   public static async go (): Promise<void> {
     await InitManager.initLoadDatabase()
@@ -30,15 +27,15 @@ class GetMovieFromAPI {
     setInterval(() => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.handleTask()
-    }, this.fastMode ? 15000 + Math.floor(Math.random() * 8000) : 5000 + Math.floor(Math.random() * 2000))
+    }, 15000 + Math.floor(Math.random() * 8000))
     setInterval(() => {
-      console.log('=========task===========')
+      console.log('=========task=========')
       console.log(this.task.size)
-      console.log('=========done===========')
-      console.log(this.done.size - (this.fastMode ? this.initTaskNumber * this.initDoneRate : this.initTaskNumber))
-      console.log('=========exist==========')
-      console.log(this.exist)
-    }, this.fastMode ? 15000 : 5000)
+      console.log('=========new==========')
+      console.log(this.new)
+      console.log('=========all==========')
+      console.log(this.all.size)
+    }, 15000)
     setInterval(() => {
       httpLogger.info('Get >>>>>> (msg) https://api.dianying.fm/movies')
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -49,68 +46,54 @@ class GetMovieFromAPI {
   private static async initTask (): Promise<void> {
     logger.info('========start========')
     logger.info(new Date(Date.now()))
-    logger.info(`crawler mode: ${this.fastMode ? 'fast' : 'fully'}`)
-    // set url by mode
-    this.url = this.fastMode ? 'https://api.dianying.fm/movies?ids=' : 'https://api.dianying.fm/movies/'
+    logger.info('crawler mode: fast')
     // it may cause task empty
-    // load done from database
+    // load all movies from database
+    // max memory of V8 in x64: 1.4G
     const doneMovies = await Movie.findAll({
-      attributes: ['_id', 'path'],
-      limit: this.fastMode ? this.initTaskNumber * this.initDoneRate : this.initTaskNumber,
-      order: [
-        ['create_time', 'DESC']
-      ]
+      attributes: ['_id']
     })
     doneMovies.map(movie => {
-      this.done.add(this.fastMode ? movie._id : movie.path)
+      this.all.add(movie._id)
     })
     // get least movies as init movies
     // make sure you have at least one movie in database
     const initMovie = await Movie.findAll({
-      attributes: ['recs', 'path'],
+      attributes: ['recs'],
       limit: this.initTaskNumber,
       order: [
         ['create_time', 'DESC']
       ]
     })
     // add task
-    if (this.fastMode) {
-      initMovie.map(movie => {
-        if (movie.recs !== undefined) {
-          movie.recs.map(id => {
-            if (!this.done.has(id)) {
-              this.task.add(id)
-            }
-          })
-        }
-      })
-    } else {
-      initMovie.map(movie => {
-        if (!this.done.has(movie.path)) {
-          this.task.add(movie.path)
-        }
-      })
-    }
+    initMovie.map(movie => {
+      if (movie.recs !== undefined && movie.recs !== null) {
+        movie.recs.map(id => {
+          if (!this.all.has(id)) {
+            this.task.add(id)
+          }
+        })
+      }
+    })
   }
 
   private static async handleTask (): Promise<void> {
     if (this.task.size > 0) {
-      if (this.fastMode) {
-        const ids = []
+      const ids = []
+      try {
         let counter = 0
         this.task.forEach((id) => {
           if (counter < 20) {
             ids.push(id)
             this.task.delete(id)
             counter++
+          } else {
+            throw new Error('ids up to 20')
           }
         })
-        await this.getMovies(this.parseIds(ids))
-      } else {
-        const path = [...this.task][0]
-        this.task.delete(path)
-        await this.getMovies(path.toString())
+      } catch (e) {
       }
+      await this.getMovies(this.parseIds(ids))
     } else {
       console.log('waning! task is empty')
     }
@@ -121,11 +104,7 @@ class GetMovieFromAPI {
       httpLogger.info(`Get >>>>>> (getMovies) ${this.url + query}`)
       console.log('========request: ', this.url + query)
       const res = await request.get(this.url + query)
-      if (this.fastMode) {
-        await this.addMovieById(res.body)
-      } else {
-        await this.addMovieByPath(res.body)
-      }
+      await this.addMovieById(res.body)
     } catch (err) {
       logger.error(err)
     }
@@ -138,7 +117,7 @@ class GetMovieFromAPI {
         // add recs movies to task
         if (movie.recs !== undefined) {
           movie.recs.map(id => {
-            if (!this.done.has(id)) {
+            if (!this.all.has(id)) {
               this.task.add(id)
             }
           })
@@ -151,26 +130,12 @@ class GetMovieFromAPI {
         // add recs movies to task
         if (movie.recs !== undefined) {
           movie.recs.map(id => {
-            if (!this.done.has(id)) {
+            if (!this.all.has(id)) {
               this.task.add(id)
             }
           })
         }
       }
-    }
-  }
-
-  private static async addMovieByPath (movie): Promise<void> {
-    await this.createMovie(movie)
-    // add recs movies path to task
-    if (this.task.size < 15) {
-      httpLogger.info(`Get >>>>>> (addMovieByPath) https://api.dianying.fm/movies?ids=${this.parseIds(movie.recs)}`)
-      const res = await request.get(`https://api.dianying.fm/movies?ids=${this.parseIds(movie.recs)}`)
-      res.body.map(movie => {
-        if (!this.done.has(movie.path)) {
-          this.task.add(movie.path)
-        }
-      })
     }
   }
 
@@ -183,15 +148,15 @@ class GetMovieFromAPI {
       console.log('========creating: ', movie.title)
       const flag = await MovieService.create(movie)
       if (!flag) {
-        this.exist++
-        logger.info(`existed: ${movie.title} ${movie._id}`)
-        console.log('========existed: ', movie.title_en)
+        logger.error(`existed: ${movie.title} ${movie._id}`)
+        console.error('unexpected existed: ', movie._id)
         return
       }
+      this.new++
       console.log('========finished: ', movie.title_en)
       logger.info(`created: ${movie.title} ${movie._id}`)
-      // add this movie to done
-      this.done.add(movie._id)
+      // add this movie to all
+      this.all.add(movie._id)
       // remove this movie form task
       this.task.delete(movie._id)
       // back up poster
@@ -216,9 +181,9 @@ class GetMovieFromAPI {
   }
 
   private static parseIds (ids: number[]): string {
-    // remove id already exist in done
+    // remove id already exist in all
     const filterId = ids.filter(id => {
-      return !this.done.has(id)
+      return !this.all.has(id)
     })
     // format
     return filterId.join('-')
