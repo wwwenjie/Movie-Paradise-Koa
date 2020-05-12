@@ -23,7 +23,7 @@ class GetMovieFromAPI {
   private static readonly msg: object = { email: 'jinwenjie@live.com', msg: 'Hello, I am getting your data through program, because there is no robots, please contact me if it bothers you, sorry for the inconvenient' }
   private static exist: number = 0
   private static url: string
-// 减少
+
   public static async go (): Promise<void> {
     await InitManager.initLoadDatabase()
     await this.initTask()
@@ -38,7 +38,7 @@ class GetMovieFromAPI {
       console.log(this.done.size - (this.fastMode ? this.initTaskNumber * this.initDoneRate : this.initTaskNumber))
       console.log('=========exist==========')
       console.log(this.exist)
-    }, 5000)
+    }, this.fastMode ? 15000 : 5000)
     setInterval(() => {
       httpLogger.info('Get >>>>>> (msg) https://api.dianying.fm/movies')
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -118,8 +118,8 @@ class GetMovieFromAPI {
 
   private static async getMovies (query: string): Promise<void> {
     try {
-      logger.info(`get movies from ${this.url}${query}`)
       httpLogger.info(`Get >>>>>> (getMovies) ${this.url + query}`)
+      console.log('========request: ', this.url + query)
       const res = await request.get(this.url + query)
       if (this.fastMode) {
         await this.addMovieById(res.body)
@@ -180,15 +180,15 @@ class GetMovieFromAPI {
     }
     // create movie
     try {
-      console.log('========creating')
+      console.log('========creating: ', movie.title)
       const flag = await MovieService.create(movie)
       if (!flag) {
         this.exist++
         logger.info(`existed: ${movie.title} ${movie._id}`)
-        console.log('========existed')
+        console.log('========existed: ', movie.title_en)
         return
       }
-      console.log('========finished')
+      console.log('========finished: ', movie.title_en)
       logger.info(`created: ${movie.title} ${movie._id}`)
       // add this movie to done
       this.done.add(movie._id)
