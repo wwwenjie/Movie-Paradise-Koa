@@ -17,7 +17,7 @@ const sequelize = new Sequelize({
     idle: 10000
   },
   timezone: '+08:00',
-  logging: process.env.NODE_ENV !== 'production' ? console.log : null
+  logging: config.database.logging
 })
 
 export default sequelize

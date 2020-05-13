@@ -6,6 +6,7 @@
     "username": "root",
     "password": "root",
     "database": "database name",
+    "logging": false,
     "forceSync": false
   },
   "cors": {
