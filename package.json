@@ -10,6 +10,7 @@
   },
   "scripts": {
     "serve": "ts-node-dev src/app.ts",
+    "lint": "eslint src/*",
     "test": "jest",
     "build": "tsc",
     "get": "ts-node src/core/crawler.ts"

@@ -1,6 +1,6 @@
 .idea/
 .vscode/
-*.log
 node_modules/
 dist/
-src/config.ts
+*.log
+src/config/config.local.json

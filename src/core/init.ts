@@ -13,6 +13,9 @@ export default class InitManager {
       await InitManager.initLoadDatabase()
       await InitManager.initLoadCORS()
       await InitManager.initLoadRouters()
+      const port: number = config.port
+      InitManager.app.listen(port)
+      console.log(`listen at http://localhost:${port}`)
     })().catch(err => {
       console.error(err)
     })
@@ -43,7 +46,8 @@ export default class InitManager {
 
   private static async initLoadCORS (): Promise<void> {
     InitManager.app.use(async (ctx, next) => {
-      if (config.cors.allowOrigin.includes(ctx.request.header.origin)) {
+      const allowOrigin: string[] = config.cors.allowOrigin
+      if (allowOrigin.includes(ctx.request.header.origin)) {
         ctx.set('Access-Control-Allow-Origin', ctx.request.header.origin)
       }
       await next()
