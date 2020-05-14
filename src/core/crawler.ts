@@ -8,12 +8,10 @@ import OSS from '../util/oss'
 // todo: back up database function
 class GetMovieFromAPI {
   // default: fastMode dont have backdrops, use ids to get
-  // use for fastMode, multiple request at a same time
-  private static readonly concurrencyMode: boolean = false
+  // use for fastMode, multiple creating at a same time
+  private static readonly concurrencyMode: boolean = true
   // use for fastMode, dont request poster and trailer
   private static readonly pureFast: boolean = true
-  // set initTaskNumber, number of movies init get, fast mode init id will be number * 9(recs)
-  private static readonly initTaskNumber: number = 100
   // store id already added, avoid unnecessary query
   private static readonly all: Set<number|string> = new Set()
   private static readonly task: Set<number|string> = new Set()
@@ -50,23 +48,20 @@ class GetMovieFromAPI {
     // it may cause task empty
     // load all movies from database
     // max memory of V8 in x64: 1.4G
-    const doneMovies = await Movie.findAll({
-      attributes: ['_id']
+    console.time('loading db')
+    const totalMovies = await Movie.findAll({
+      attributes: ['_id', 'recs']
     })
-    doneMovies.map(movie => {
+    console.timeEnd('loading db')
+    console.time('adding all')
+    totalMovies.map(movie => {
       this.all.add(movie._id)
     })
-    // get least movies as init movies
+    console.timeEnd('adding all')
     // make sure you have at least one movie in database
-    const initMovie = await Movie.findAll({
-      attributes: ['recs'],
-      limit: this.initTaskNumber,
-      order: [
-        ['create_time', 'DESC']
-      ]
-    })
     // add task
-    initMovie.map(movie => {
+    console.time('adding task')
+    totalMovies.map(movie => {
       if (movie.recs !== undefined && movie.recs !== null) {
         movie.recs.map(id => {
           if (!this.all.has(id)) {
@@ -75,6 +70,7 @@ class GetMovieFromAPI {
         })
       }
     })
+    console.timeEnd('adding task')
   }
 
   private static async handleTask (): Promise<void> {
@@ -83,12 +79,12 @@ class GetMovieFromAPI {
       try {
         let counter = 0
         this.task.forEach((id) => {
-          if (counter < 20) {
+          if (counter < 30) {
             ids.push(id)
             this.task.delete(id)
             counter++
           } else {
-            throw new Error('ids up to 20')
+            throw new Error('ids up to 30')
           }
         })
       } catch (e) {
@@ -104,6 +100,11 @@ class GetMovieFromAPI {
       httpLogger.info(`Get >>>>>> (getMovies) ${this.url + query}`)
       console.log('========request: ', this.url + query)
       const res = await request.get(this.url + query)
+      if (res.body.length < 5) {
+        await this.sleep(1000)
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.handleTask()
+      }
       await this.addMovieById(res.body)
     } catch (err) {
       logger.error(err)
