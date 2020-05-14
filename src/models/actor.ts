@@ -5,23 +5,10 @@ import {
   Index,
   Model,
   PrimaryKey,
-  Scopes,
   Table
 } from 'sequelize-typescript'
 import Movie from './movie'
 import MovieActor from './movie-actor'
-
-@Scopes(() => ({
-  movies: {
-    attributes: [],
-    include: [
-      {
-        model: Movie,
-        through: { attributes: [] }
-      }
-    ]
-  }
-}))
 
 @Table({
   createdAt: false,

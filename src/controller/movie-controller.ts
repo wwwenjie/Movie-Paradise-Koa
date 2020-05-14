@@ -6,14 +6,21 @@ const router = new Router({
 })
 
 router.get('/', async (ctx) => {
-  // todo: limit
   const genre = ctx.query.genre
+  const actor = ctx.query.actor
+  const limit = ctx.query.limit
+  const offset = ctx.query.offset
+  if (actor !== undefined) {
+    ctx.body = await MovieService.findByActor(actor, limit, offset)
+    return
+  }
+  // todo: new map will process find all
   const special = new Map()
     // newest
     .set('newest', MovieService.findAll())
     // search
     .set('key', MovieService.findAll())
-  ctx.body = special.has(genre) ? await special.get(genre) : await MovieService.findByGenre(genre)
+  ctx.body = special.has(genre) ? await special.get(genre) : await MovieService.findByGenre(genre, limit, offset)
 })
 
 router.post('/', async (ctx) => {

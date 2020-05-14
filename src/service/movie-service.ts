@@ -1,7 +1,9 @@
 import Movie from '../models/movie'
 import Genre from '../models/genre'
-import { Op } from 'sequelize'
 import Actor from '../models/actor'
+import MovieActor from '../models/movie-actor'
+import MovieGenre from '../models/movie-genre'
+import { Op } from 'sequelize'
 
 export default class MovieService {
   public static async findAll (): Promise<Movie[] | null> {
@@ -14,22 +16,59 @@ export default class MovieService {
     return Movie.findByPk(_id)
   }
 
-  public static async findByGenre (genre: string): Promise<Movie[]> {
-    const genres = await Genre.scope('movies').findOne({
+  public static async findByGenre (genre: string, limit: number = 8, offset: number = 0): Promise<Movie[]> {
+    // try to store genre id to memory
+    const genreOne = await Genre.findOne({
+      attributes: ['genre_id'],
       where: {
         name: genre
       }
     })
-    return genres.movies
+    const movies = await MovieGenre.findAll({
+      attributes: ['movie_id'],
+      where: {
+        genre_id: genreOne.genre_id
+      },
+      limit: limit,
+      offset: offset
+    })
+    const ids = movies.map(movie => {
+      return movie.movie_id
+    })
+    return Movie.findAll({
+      where: {
+        _id: {
+          [Op.in]: ids
+        }
+      }
+    })
   }
 
-  public static async findByActor (actor: string): Promise<Movie[]> {
-    const actors = await Actor.scope('movies').findOne({
+  public static async findByActor (actor: string, limit: number = 8, offset: number = 0): Promise<Movie[]> {
+    const actorOne = await Actor.findOne({
+      attributes: ['actor_id'],
       where: {
         name: actor
       }
     })
-    return actors.movies
+    const movies = await MovieActor.findAll({
+      attributes: ['movie_id'],
+      where: {
+        actor_id: actorOne.actor_id
+      },
+      limit: limit,
+      offset: offset
+    })
+    const ids = movies.map(movie => {
+      return movie.movie_id
+    })
+    return Movie.findAll({
+      where: {
+        _id: {
+          [Op.in]: ids
+        }
+      }
+    })
   }
 
   /**
