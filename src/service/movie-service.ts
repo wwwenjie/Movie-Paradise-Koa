@@ -1,6 +1,7 @@
 import Movie from '../entity/movie'
 import Genre from '../entity/genre'
 import Actor from '../entity/actor'
+import { BaseEntity } from 'typeorm'
 
 interface MovieService {
   findByPath(path: string): Promise<Movie>
@@ -38,7 +39,7 @@ export default class MovieServiceImpl implements MovieService {
     // security
     const query = await Movie.query('SELECT movie_id as id FROM movie_genre WHERE ' +
       'genre_id = (SELECT genre_id FROM genre WHERE name = ?) LIMIT ? OFFSET ?',
-    [genre, parseInt(String(limit)), parseInt(String(offset))])
+    [genre, limit, offset])
     const ids = query.map(row => {
       return row.id
     })
@@ -72,12 +73,12 @@ export default class MovieServiceImpl implements MovieService {
         name: genreName
       })
       if (genre === undefined) {
-        const genre = await Genre.create({
-          name: genreName
-        })
-        await genre.save()
+        const genre = new Genre()
+        genre.name = genreName
+        genreEntity.push(await genre.save())
+      } else {
+        genreEntity.push(genre)
       }
-      genreEntity.push(genre)
     }))
     movie.genres = genreEntity
     return Movie.save(movie)
@@ -94,14 +95,13 @@ export default class MovieServiceImpl implements MovieService {
         name: actorName
       })
       if (actor === undefined) {
-        const actor = Actor.create({
-          name: actorName
-        })
-        await actor.save()
+        const actor = new Actor()
+        actor.name = actorName
+        actorEntity.push(await actor.save())
+      } else {
+        actorEntity.push(actor)
       }
-      actorEntity.push(actor)
     }))
-    console.log(actorEntity)
     movie.actors = actorEntity
     return Movie.save(movie)
   }

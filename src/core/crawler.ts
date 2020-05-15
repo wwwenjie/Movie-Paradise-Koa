@@ -118,7 +118,7 @@ class GetMovieFromAPI {
       await Promise.all(movies.map(async (movie) => {
         await this.createMovie(movie)
         // add recs movies to task
-        if (movie.recs !== undefined) {
+        if (movie.recs !== undefined && movie.recs !== null) {
           movie.recs.map(id => {
             if (!this.all.has(id)) {
               this.task.add(id)
@@ -131,7 +131,7 @@ class GetMovieFromAPI {
         await this.sleep(1000)
         await this.createMovie(movie)
         // add recs movies to task
-        if (movie.recs !== undefined) {
+        if (movie.recs !== undefined && movie.recs !== null) {
           movie.recs.map(id => {
             if (!this.all.has(id)) {
               this.task.add(id)
@@ -170,6 +170,8 @@ class GetMovieFromAPI {
     } catch (err) {
       logger.error(err)
       logger.error(movie)
+      console.log(err)
+      console.log(movie)
     }
   }
 
