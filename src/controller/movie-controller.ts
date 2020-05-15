@@ -8,31 +8,21 @@ const router = new Router({
 const movieService = new MovieService()
 
 router.get('/', async (ctx) => {
-  const genre: string = ctx.query.genre
-  const actor: string = ctx.query.actor
-  const limit: number = ctx.query.limit
-  const offset: number = ctx.query.offset
-  console.log(Number.isInteger(limit))
-  console.log(limit)
-  console.time(`movie query ${genre} ${actor} ${limit} ${offset}`)
+  const { genre, actor, limit, offset } = ctx.query
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions,@typescript-eslint/strict-boolean-expressions
+  console.time(`movie query ${genre || 'actor'} ${actor || 'genre'} ${limit} ${offset}`)
   if (actor !== undefined) {
-    await movieService.findByActor(actor, limit, offset)
-    console.timeEnd(`movie query ${genre} ${actor} ${limit} ${offset}`)
-    return
+    ctx.body = await movieService.findByActor(actor, limit, offset)
+  } else {
+    ctx.body = await movieService.findByGenre(genre, limit, offset)
   }
-  ctx.body = await movieService.findByGenre(genre, limit, offset)
-  console.timeEnd(`movie query ${genre} ${actor} ${limit} ${offset}`)
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions,@typescript-eslint/strict-boolean-expressions
+  console.timeEnd(`movie query ${genre || 'actor'} ${actor || 'genre'} ${limit} ${offset}`)
 })
 
 router.post('/', async (ctx) => {
-  if (ctx.request.body instanceof Array) {
-    for (const movie of ctx.request.body) {
-      await movieService.create(movie)
-    }
-    ctx.body = ctx.request.body
-  } else {
-    ctx.body = await movieService.create(ctx.request.body)
-  }
+  await movieService.update(ctx.request.body)
+  ctx.body = { code: 200, msg: 'success' }
 })
 
 router.get('/:path', async (ctx) => {
