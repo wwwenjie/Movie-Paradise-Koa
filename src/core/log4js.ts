@@ -1,7 +1,7 @@
 import { configure, getLogger } from 'log4js'
 configure({
   appenders: {
-    Default: { type: 'file', filename: 'movie.log' },
+    Default: { type: 'file', filename: 'app.log' },
     Movie: { type: 'file', filename: 'movie.log' },
     OSS: { type: 'file', filename: 'oss.log' },
     HTTP: { type: 'file', filename: 'http.log' }

@@ -1,23 +1,17 @@
-// https://github.com/RobinBuschmann/sequelize-typescript
-import { Sequelize } from 'sequelize-typescript'
 import config from '../config'
+import { createConnection } from 'typeorm'
+import * as path from 'path'
 
-const { database, username, password, host, port } = config.database
-const sequelize = new Sequelize({
-  dialect: 'mysql',
-  database,
-  host,
-  port,
-  username,
-  password,
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
-  },
-  timezone: '+08:00',
-  logging: config.database.logging
+const { type, username, password, host, port, database, sync, logging } = config.database
+export default createConnection({
+  type: type,
+  host: host,
+  port: port,
+  username: username,
+  password: password,
+  database: database,
+  // ts node for dev
+  entities: [path.resolve(__dirname, '../entity/*.ts')],
+  synchronize: sync,
+  logging: logging
 })
-
-export default sequelize

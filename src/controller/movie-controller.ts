@@ -5,37 +5,38 @@ const router = new Router({
   prefix: '/movies'
 })
 
+const movieService = new MovieService()
+
 router.get('/', async (ctx) => {
-  const genre = ctx.query.genre
-  const actor = ctx.query.actor
-  const limit = ctx.query.limit
-  const offset = ctx.query.offset
+  const genre: string = ctx.query.genre
+  const actor: string = ctx.query.actor
+  const limit: number = ctx.query.limit
+  const offset: number = ctx.query.offset
+  console.log(Number.isInteger(limit))
+  console.log(limit)
+  console.time(`movie query ${genre} ${actor} ${limit} ${offset}`)
   if (actor !== undefined) {
-    ctx.body = await MovieService.findByActor(actor, limit, offset)
+    await movieService.findByActor(actor, limit, offset)
+    console.timeEnd(`movie query ${genre} ${actor} ${limit} ${offset}`)
     return
   }
-  // todo: new map will process find all
-  const special = new Map()
-    // newest
-    .set('newest', MovieService.findAll())
-    // search
-    .set('key', MovieService.findAll())
-  ctx.body = special.has(genre) ? await special.get(genre) : await MovieService.findByGenre(genre, limit, offset)
+  ctx.body = await movieService.findByGenre(genre, limit, offset)
+  console.timeEnd(`movie query ${genre} ${actor} ${limit} ${offset}`)
 })
 
 router.post('/', async (ctx) => {
   if (ctx.request.body instanceof Array) {
     for (const movie of ctx.request.body) {
-      await MovieService.create(movie)
+      await movieService.create(movie)
     }
     ctx.body = ctx.request.body
   } else {
-    ctx.body = await MovieService.create(ctx.request.body)
+    ctx.body = await movieService.create(ctx.request.body)
   }
 })
 
-router.get('/:id', async (ctx) => {
-  ctx.body = await MovieService.findById(ctx.params.id)
+router.get('/:path', async (ctx) => {
+  ctx.body = await movieService.findByPath(ctx.params.path)
 })
 
 export default router
