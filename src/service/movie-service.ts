@@ -1,149 +1,132 @@
-import Movie from '../models/movie'
-import Genre from '../models/genre'
-import Actor from '../models/actor'
-import MovieActor from '../models/movie-actor'
-import MovieGenre from '../models/movie-genre'
-import { Op } from 'sequelize'
+import Movie from '../entity/movie'
+import Genre from '../entity/genre'
+import Actor from '../entity/actor'
 
-export default class MovieService {
-  public static async findAll (): Promise<Movie[] | null> {
-    return Movie.findAll({
-      limit: 8
+interface MovieService {
+  findByPath(path: string): Promise<Movie>
+  findByGenre(genre: string, limit: string, offset: string): Promise<Movie[]>
+  findByActor(actor: string, limit: string, offset: string): Promise<Movie[]>
+  update(movie: Movie): Promise<void | Error>
+  create(movie: Movie): Promise<void | Error>
+  handelGenre (movie: Movie): Promise<Movie>
+  handelActor (movie: Movie): Promise<Movie>
+}
+
+export default class MovieServiceImpl implements MovieService {
+  async findByPath (path: string): Promise<Movie> {
+    return Movie.findOne({
+      path: path
     })
   }
 
-  public static async findById (_id: number): Promise<Movie | null> {
-    return Movie.findByPk(_id)
-  }
-
-  public static async findByGenre (genre: string, limit: number = 8, offset: number = 0): Promise<Movie[]> {
-    // try to store genre id to memory
-    const genreOne = await Genre.findOne({
-      attributes: ['genre_id'],
-      where: {
-        name: genre
-      }
-    })
-    const movies = await MovieGenre.findAll({
-      attributes: ['movie_id'],
-      where: {
-        genre_id: genreOne.genre_id
-      },
-      limit: limit,
-      offset: offset
-    })
-    const ids = movies.map(movie => {
-      return movie.movie_id
-    })
-    return Movie.findAll({
-      where: {
-        _id: {
-          [Op.in]: ids
-        }
-      }
-    })
-  }
-
-  public static async findByActor (actor: string, limit: number = 8, offset: number = 0): Promise<Movie[]> {
-    const actorOne = await Actor.findOne({
-      attributes: ['actor_id'],
-      where: {
-        name: actor
-      }
-    })
-    const movies = await MovieActor.findAll({
-      attributes: ['movie_id'],
-      where: {
-        actor_id: actorOne.actor_id
-      },
-      limit: limit,
-      offset: offset
-    })
-    const ids = movies.map(movie => {
-      return movie.movie_id
-    })
-    return Movie.findAll({
-      where: {
-        _id: {
-          [Op.in]: ids
-        }
-      }
-    })
-  }
-
-  /**
-   * create movie, success: true exist: false error: throw
-   * @param movie: Movie
-   * @return flag: boolean
-   */
-  public static async create (movie: Movie): Promise<boolean> {
-    const res = await Movie.findOne({
-      where: {
-        _id: movie._id
-      }
-    })
-    if (res === null) {
-      const res = new Movie(movie)
-      // save id first
-      await res.save()
-      // oops, cartoon has no actors🤣
-      if (res.info.actors !== undefined) {
-        await this.handelActor(res)
-      }
-      // sometimes, genre also is undefined
-      if (res.info.genre !== undefined) {
-        await this.handelGenre(res)
-      }
-      return true
-    } else {
-      return false
+  async findByActor (actor: string, limit: string = '8', offset: string = '0'): Promise<Movie[]> {
+    const query = await Movie.query('SELECT movie_id as id FROM movie_actor WHERE ' +
+      'actor_id = (SELECT actor_id FROM actor WHERE name = ?) LIMIT ? OFFSET ?',
+    [actor, parseInt(limit), parseInt(offset)])
+    if (query.length === 0) {
+      return []
     }
+    const ids = query.map(row => {
+      return row.id
+    })
+    return Movie.createQueryBuilder()
+      .whereInIds(ids)
+      .getMany()
   }
 
-  private static async handelGenre (movie: Movie): Promise<void> {
-    // get genre array from info
+  async findByGenre (genre: string, limit: string = '8', offset: string = '0'): Promise<Movie[]> {
+    // security
+    const query = await Movie.query('SELECT movie_id as id FROM movie_genre WHERE ' +
+      'genre_id = (SELECT genre_id FROM genre WHERE name = ?) LIMIT ? OFFSET ?',
+    [genre, parseInt(limit), parseInt(offset)])
+    const ids = query.map(row => {
+      return row.id
+    })
+    return Movie.createQueryBuilder()
+      .whereInIds(ids)
+      .getMany()
+  }
+
+  async create (movie: Movie): Promise<void | Error> {
+    if (await Movie.findOne({ _id: movie._id }) !== undefined) {
+      throw Error('movie existed')
+    }
+    await this.update(movie)
+  }
+
+  async update (movie: Movie): Promise<void | Error> {
+    this.setValues(movie)
+    movie = await this.handelGenre(movie)
+    movie = await this.handelActor(movie)
+    await Movie.save(movie)
+  }
+
+  // Duplicated code
+  async handelGenre (movie: Movie): Promise<Movie> {
+    if (movie.info.genre === undefined) {
+      return movie
+    }
     const genreValues = movie.info.genre.split('/')
-    // add genre to genre table if it dosent exist
-    // todo: import translate API to add name_en
-    await Promise.all(genreValues.map(async (genre) => {
-      await Genre.findOrCreate({
-        where: {
-          name: genre
-        }
+    const genreEntity = []
+    await Promise.all(genreValues.map(async genreName => {
+      const genre = await Genre.findOne({
+        name: genreName
       })
-    }))
-    // get genre from genre table
-    const genreModels = await Genre.findAll({
-      where: {
-        name: {
-          [Op.in]: genreValues
-        }
+      if (genre === undefined) {
+        const res = await Genre.insert({
+          name: genreName
+        })
+        genreEntity.push(...res.identifiers)
+      } else {
+        genreEntity.push(genre)
       }
-    })
-    // save movie_genre
-    await movie.$set('genres', genreModels)
-    await movie.save()
+    }))
+    movie.genres = genreEntity
+    return movie
   }
 
-  private static async handelActor (movie: Movie): Promise<void> {
-    // same with handelGenre
-    // if it possible, find an API to add actors info by name
+  async handelActor (movie: Movie): Promise<Movie> {
+    if (movie.info.actors === undefined) {
+      return movie
+    }
     const actorValues = movie.info.actors.split('/')
-    await Promise.all(actorValues.map(async (actor) => {
-      await Actor.findOrCreate({
-        where: {
-          name: actor
-        }
+    const actorEntity = []
+    await Promise.all(actorValues.map(async actorName => {
+      const actor = await Actor.findOne({
+        name: actorName
       })
-    }))
-    const actorModels = await Actor.findAll({
-      where: {
-        name: {
-          [Op.in]: actorValues
-        }
+      if (actor === undefined) {
+        const res = await Actor.insert({
+          name: actorName
+        })
+        actorEntity.push(...res.identifiers)
+      } else {
+        actorEntity.push(actor)
       }
-    })
-    await movie.$set('actors', actorModels)
-    await movie.save()
+    }))
+    movie.actors = actorEntity
+    return movie
+  }
+
+  setValues (movie: Movie): void{
+    // change poster
+    movie.poster = 'https://img.dianying.fm/poster/' + movie._id.toString()
+    const date = RegExp(/\d{4}-\d{2}-\d{2}/)
+    const year = RegExp(/\d{4}/)
+    if (movie.year == null && movie.info.release == null) {
+      movie.year = 0
+      movie.release = new Date(movie.year)
+    } else if (movie.info.release != null) {
+      // add movie.release
+      if (date.test(movie.info.release)) {
+        movie.release = new Date(movie.info.release.match(date)[0])
+      } else {
+        movie.release = new Date(movie.info.release.match(year)[0])
+      }
+      // add year
+      movie.year = parseInt(movie.info.release.match(year)[0])
+    } else if (movie.year != null) {
+      movie.release = new Date(movie.year)
+    }
   }
 }

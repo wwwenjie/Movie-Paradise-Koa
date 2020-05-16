@@ -5,37 +5,28 @@ const router = new Router({
   prefix: '/movies'
 })
 
+const movieService = new MovieService()
+
 router.get('/', async (ctx) => {
-  const genre = ctx.query.genre
-  const actor = ctx.query.actor
-  const limit = ctx.query.limit
-  const offset = ctx.query.offset
+  const { genre, actor, limit, offset } = ctx.query
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions,@typescript-eslint/strict-boolean-expressions
+  console.time(`movie query ${genre || 'actor'} ${actor || 'genre'} ${limit} ${offset}`)
   if (actor !== undefined) {
-    ctx.body = await MovieService.findByActor(actor, limit, offset)
-    return
+    ctx.body = await movieService.findByActor(actor, limit, offset)
+  } else {
+    ctx.body = await movieService.findByGenre(genre, limit, offset)
   }
-  // todo: new map will process find all
-  const special = new Map()
-    // newest
-    .set('newest', MovieService.findAll())
-    // search
-    .set('key', MovieService.findAll())
-  ctx.body = special.has(genre) ? await special.get(genre) : await MovieService.findByGenre(genre, limit, offset)
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions,@typescript-eslint/strict-boolean-expressions
+  console.timeEnd(`movie query ${genre || 'actor'} ${actor || 'genre'} ${limit} ${offset}`)
 })
 
 router.post('/', async (ctx) => {
-  if (ctx.request.body instanceof Array) {
-    for (const movie of ctx.request.body) {
-      await MovieService.create(movie)
-    }
-    ctx.body = ctx.request.body
-  } else {
-    ctx.body = await MovieService.create(ctx.request.body)
-  }
+  await movieService.update(ctx.request.body)
+  ctx.body = { code: 200, msg: 'success' }
 })
 
-router.get('/:id', async (ctx) => {
-  ctx.body = await MovieService.findById(ctx.params.id)
+router.get('/:path', async (ctx) => {
+  ctx.body = await movieService.findByPath(ctx.params.path)
 })
 
 export default router

@@ -1,5 +1,5 @@
 // inspired by https://github.com/LFB/nodejs-koa-blog
-import sequelize from './db'
+import connect from './db'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as Router from 'koa-router'
@@ -22,14 +22,12 @@ export default class InitManager {
   }
 
   public static async initLoadDatabase (): Promise<void> {
-    await sequelize.authenticate()
-    console.log('Database connection has been established successfully.')
-    // not async function
-    sequelize.addModels([path.resolve(__dirname, '../models/')])
-    console.log('Models loaded')
-    // change force to true to drop tables if already exist (data will lose)
-    await sequelize.sync({ force: config.database.forceSync })
-    console.log('Success sync database')
+    try {
+      await connect
+      console.log('Connection has been established successfully.')
+    } catch (err) {
+      console.error('Unable to connect to the database:', err)
+    }
   }
 
   private static async initLoadRouters (): Promise<void> {

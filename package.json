@@ -16,7 +16,7 @@
     "get": "ts-node src/core/crawler.ts"
   },
   "dependencies": {
-    "ali-oss": "^6.7.0",
+    "ali-oss": "^6.8.0",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.3.0",
     "koa-router": "^8.0.8",
@@ -24,12 +24,10 @@
     "mysql2": "^2.1.0",
     "reflect-metadata": "^0.1.13",
     "require-directory": "^2.1.1",
-    "sequelize": "^5.21.7",
-    "sequelize-typescript": "^1.1.0"
+    "typeorm": "^0.2.24"
   },
   "devDependencies": {
     "@types/ali-oss": "^6.0.5",
-    "@types/bluebird": "^3.5.30",
     "@types/jest": "^25.2.1",
     "@types/koa": "^2.11.3",
     "@types/koa-bodyparser": "^4.3.0",

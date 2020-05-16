@@ -2,7 +2,7 @@ import * as request from 'superagent'
 import MovieService from '../service/movie-service'
 import { movieLogger as logger, httpLogger } from './log4js'
 import InitManager from './init'
-import Movie from '../models/movie'
+import Movie from '../entity/movie'
 import OSS from '../util/oss'
 
 // todo: back up database function
@@ -18,9 +18,11 @@ class GetMovieFromAPI {
   private static readonly msg: object = { email: 'jinwenjie@live.com', msg: 'Hello, I am getting your data through program, because there is no robots, please contact me if it bothers you, sorry for the inconvenient' }
   private static readonly url: string = 'https://api.dianying.fm/movies?ids='
   private static new: number = 0
+  private static movieService: MovieService
 
   public static async go (): Promise<void> {
     await InitManager.initLoadDatabase()
+    this.movieService = new MovieService()
     await this.initTask()
     setInterval(() => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -49,8 +51,8 @@ class GetMovieFromAPI {
     // load all movies from database
     // max memory of V8 in x64: 1.4G
     console.time('loading db')
-    const totalMovies = await Movie.findAll({
-      attributes: ['_id', 'recs']
+    const totalMovies = await Movie.find({
+      select: ['_id', 'recs']
     })
     console.timeEnd('loading db')
     console.time('adding all')
@@ -116,7 +118,7 @@ class GetMovieFromAPI {
       await Promise.all(movies.map(async (movie) => {
         await this.createMovie(movie)
         // add recs movies to task
-        if (movie.recs !== undefined) {
+        if (movie.recs !== undefined && movie.recs !== null) {
           movie.recs.map(id => {
             if (!this.all.has(id)) {
               this.task.add(id)
@@ -129,7 +131,7 @@ class GetMovieFromAPI {
         await this.sleep(1000)
         await this.createMovie(movie)
         // add recs movies to task
-        if (movie.recs !== undefined) {
+        if (movie.recs !== undefined && movie.recs !== null) {
           movie.recs.map(id => {
             if (!this.all.has(id)) {
               this.task.add(id)
@@ -147,12 +149,8 @@ class GetMovieFromAPI {
     // create movie
     try {
       console.log('========creating: ', movie.title)
-      const flag = await MovieService.create(movie)
-      if (!flag) {
-        logger.error(`existed: ${movie.title} ${movie._id}`)
-        console.error('unexpected existed: ', movie._id)
-        return
-      }
+      // if existed create will throw error
+      await this.movieService.create(movie)
       this.new++
       console.log('========finished: ', movie.title_en)
       logger.info(`created: ${movie.title} ${movie._id}`)
@@ -168,6 +166,8 @@ class GetMovieFromAPI {
     } catch (err) {
       logger.error(err)
       logger.error(movie)
+      console.log(err)
+      console.log(movie)
     }
   }
 
