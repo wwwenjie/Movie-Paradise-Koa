@@ -20,31 +20,30 @@ export default class Movie extends BaseEntity {
   @Column({ nullable: true })
   imdb_id: string
 
-  @Index('movies_title')
+  @Index('movie_title')
   @Column()
   title: string
 
-  @Index('movies_title_en')
+  @Index('movie_title_en')
   @Column({ nullable: true })
   title_en: string
 
-  @Column({ nullable: true })
+  @Column()
   year: number
 
-  // Data redundancy for simplify operation
-
-  @Index('movies_release')
-  @Column({ nullable: true })
+  // Data redundancy for index
+  @Index('movie_release')
+  @Column()
   release: Date
 
-  @Column({ nullable: true })
+  @Column()
   poster: string
 
-  @Index('movies_path')
-  @Column({ nullable: true })
+  @Index('movie_path')
+  @Column()
   path: string
 
-  @Column({ nullable: true, type: 'json' })
+  @Column({ type: 'json' })
   info: {
     director: string
     writer: string

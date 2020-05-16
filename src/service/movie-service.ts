@@ -46,7 +46,7 @@ export default class MovieServiceImpl implements MovieService {
       .whereInIds(ids)
       .getMany()
   }
-// 似乎 koa 会转换 number 为 string，@BeforeInsert 在测试中有用但在 crawler 中无效
+
   async create (movie: Movie): Promise<void | Error> {
     this.setValues(movie)
     movie = await this.handelGenre(movie)
