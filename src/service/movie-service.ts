@@ -111,11 +111,21 @@ export default class MovieServiceImpl implements MovieService {
   setValues (movie: Movie): void{
     // change poster
     movie.poster = 'https://img.dianying.fm/poster/' + movie._id.toString()
-    // add release
-    const regex = RegExp(/\d{4}-\d{2}-\d{2}/)
-    if (regex.test(movie.info.release)) {
-      movie.release = new Date(movie.info.release.match(regex)[0])
-    } else {
+    const date = RegExp(/\d{4}-\d{2}-\d{2}/)
+    const year = RegExp(/\d{4}/)
+    if (movie.year == null && movie.info.release == null) {
+      movie.year = 0
+      movie.release = new Date(movie.year)
+    } else if (movie.info.release != null) {
+      // add movie.release
+      if (date.test(movie.info.release)) {
+        movie.release = new Date(movie.info.release.match(date)[0])
+      } else {
+        movie.release = new Date(movie.info.release.match(year)[0])
+      }
+      // add year
+      movie.year = parseInt(movie.info.release.match(year)[0])
+    } else if (movie.year != null) {
       movie.release = new Date(movie.year)
     }
   }
