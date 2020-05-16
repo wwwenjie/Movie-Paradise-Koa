@@ -48,10 +48,10 @@ export default class MovieServiceImpl implements MovieService {
   }
 
   async create (movie: Movie): Promise<void | Error> {
-    this.setValues(movie)
-    movie = await this.handelGenre(movie)
-    movie = await this.handelActor(movie)
-    await Movie.insert(movie)
+    if (Movie.hasId(movie)) {
+      throw Error('movie existed')
+    }
+    await this.update(movie)
   }
 
   async update (movie: Movie): Promise<void | Error> {
@@ -73,9 +73,10 @@ export default class MovieServiceImpl implements MovieService {
         name: genreName
       })
       if (genre === undefined) {
-        const genre = new Genre()
-        genre.name = genreName
-        genreEntity.push(await genre.save())
+        const res = await Genre.insert({
+          name: genreName
+        })
+        genreEntity.push(...res.identifiers)
       } else {
         genreEntity.push(genre)
       }
@@ -95,9 +96,10 @@ export default class MovieServiceImpl implements MovieService {
         name: actorName
       })
       if (actor === undefined) {
-        const actor = new Actor()
-        actor.name = actorName
-        actorEntity.push(await actor.save())
+        const res = await Actor.insert({
+          name: actorName
+        })
+        actorEntity.push(...res.identifiers)
       } else {
         actorEntity.push(actor)
       }

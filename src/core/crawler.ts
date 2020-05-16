@@ -149,12 +149,8 @@ class GetMovieFromAPI {
     // create movie
     try {
       console.log('========creating: ', movie.title)
-      const flag = await this.movieService.create(movie)
-      if (!flag) {
-        logger.error(`existed: ${movie.title} ${movie._id}`)
-        console.error('unexpected existed: ', movie._id)
-        return
-      }
+      // if existed create will throw error
+      await this.movieService.create(movie)
       this.new++
       console.log('========finished: ', movie.title_en)
       logger.info(`created: ${movie.title} ${movie._id}`)
