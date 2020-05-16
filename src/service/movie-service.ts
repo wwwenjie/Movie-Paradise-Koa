@@ -48,7 +48,7 @@ export default class MovieServiceImpl implements MovieService {
   }
 
   async create (movie: Movie): Promise<void | Error> {
-    if (Movie.hasId(movie)) {
+    if (await Movie.findOne({ _id: movie._id }) !== undefined) {
       throw Error('movie existed')
     }
     await this.update(movie)
