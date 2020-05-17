@@ -12,11 +12,13 @@ router.get('/today', async (ctx) => {
 })
 
 router.get('/newest', async (ctx) => {
-  ctx.body = await movieService.getNewest()
+  const { limit, offset } = ctx.query
+  ctx.body = await movieService.getNewest(limit, offset)
 })
 
 router.get('/coming', async (ctx) => {
-  ctx.body = await movieService.getComing()
+  const { limit, offset } = ctx.query
+  ctx.body = await movieService.getComing(limit, offset)
 })
 
 router.get('/:path', async (ctx) => {
