@@ -1,9 +1,15 @@
 import Movie from '../entity/movie'
 import Genre from '../entity/genre'
 import Actor from '../entity/actor'
+import { LessThan, MoreThan } from 'typeorm'
+import { getRandomItemFromArray, notNull } from '../util'
 
 interface MovieService {
+  getToday(): Promise<Movie[]>
+  getNewest(limit: string, offset: string): Promise<Movie[]>
+  getComing(limit: string, offset: string): Promise<Movie[]>
   findByPath(path: string): Promise<Movie>
+  findByIds(ids: string): Promise<Movie[]>
   findByGenre(genre: string, limit: string, offset: string): Promise<Movie[]>
   findByActor(actor: string, limit: string, offset: string): Promise<Movie[]>
   update(movie: Movie): Promise<void | Error>
@@ -13,10 +19,68 @@ interface MovieService {
 }
 
 export default class MovieServiceImpl implements MovieService {
+  // return 10 of high score, new movies, front end will store its id to make sure it wont change in one day
+  async getToday (): Promise<Movie[]> {
+    const movies = await Movie.find({
+      where: {
+        release: LessThan(new Date(Date.now()))
+      },
+      order: {
+        release: 'DESC'
+      },
+      take: 500
+    })
+    const qualifiedMovie = movies.filter(movie => {
+      if (!notNull(movie.rating)) {
+        return false
+      }
+      if (notNull(movie.rating.douban_score)) {
+        return parseFloat(movie.rating.douban_score) > 8.0
+      } else if (notNull(movie.rating.imdb_score)) {
+        return parseFloat(movie.rating.imdb_score) > 8.0
+      } else {
+        return false
+      }
+    })
+    console.log(qualifiedMovie.length)
+    return getRandomItemFromArray(qualifiedMovie, 10)
+  }
+
+  async getNewest (limit: string = '8', offset: string = '0'): Promise<Movie[]> {
+    return Movie.find({
+      where: {
+        release: LessThan(new Date(Date.now()))
+      },
+      order: {
+        release: 'DESC'
+      },
+      take: parseInt(limit),
+      skip: parseInt(offset)
+    })
+  }
+
+  async getComing (limit: string = '8', offset: string = '0'): Promise<Movie[]> {
+    return Movie.find({
+      where: {
+        release: MoreThan(new Date(Date.now()))
+      },
+      order: {
+        release: 'ASC'
+      },
+      take: parseInt(limit),
+      skip: parseInt(offset)
+    })
+  }
+
   async findByPath (path: string): Promise<Movie> {
     return Movie.findOne({
       path: path
     })
+  }
+
+  async findByIds (ids: string): Promise<Movie[]> {
+    const idsArray = ids.split('-').map(Number)
+    return Movie.findByIds(idsArray)
   }
 
   async findByActor (actor: string, limit: string = '8', offset: string = '0'): Promise<Movie[]> {
@@ -54,6 +118,7 @@ export default class MovieServiceImpl implements MovieService {
     await this.update(movie)
   }
 
+  // todo: transaction
   async update (movie: Movie): Promise<void | Error> {
     this.setValues(movie)
     movie = await this.handelGenre(movie)
