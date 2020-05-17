@@ -7,8 +7,28 @@ const router = new Router({
 
 const movieService = new MovieService()
 
+router.get('/today', async (ctx) => {
+  ctx.body = await movieService.getToday()
+})
+
+router.get('/newest', async (ctx) => {
+  ctx.body = await movieService.getNewest()
+})
+
+router.get('/coming', async (ctx) => {
+  ctx.body = await movieService.getComing()
+})
+
+router.get('/:path', async (ctx) => {
+  ctx.body = await movieService.findByPath(ctx.params.path)
+})
+
 router.get('/', async (ctx) => {
-  const { genre, actor, limit, offset } = ctx.query
+  const { ids, genre, actor, limit, offset } = ctx.query
+  if (ids !== undefined) {
+    ctx.body = await movieService.findByIds(ids)
+    return
+  }
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions,@typescript-eslint/strict-boolean-expressions
   console.time(`movie query ${genre || 'actor'} ${actor || 'genre'} ${limit} ${offset}`)
   if (actor !== undefined) {
@@ -20,13 +40,9 @@ router.get('/', async (ctx) => {
   console.timeEnd(`movie query ${genre || 'actor'} ${actor || 'genre'} ${limit} ${offset}`)
 })
 
-router.post('/', async (ctx) => {
+router.put('/', async (ctx) => {
   await movieService.update(ctx.request.body)
   ctx.body = { code: 200, msg: 'success' }
-})
-
-router.get('/:path', async (ctx) => {
-  ctx.body = await movieService.findByPath(ctx.params.path)
 })
 
 export default router
