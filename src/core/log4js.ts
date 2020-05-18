@@ -4,16 +4,19 @@ configure({
     Default: { type: 'file', filename: 'app.log' },
     Movie: { type: 'file', filename: 'movie.log' },
     OSS: { type: 'file', filename: 'oss.log' },
-    HTTP: { type: 'file', filename: 'http.log' }
+    HTTP: { type: 'file', filename: 'http.log' },
+    Improvement: { type: 'file', filename: 'improvement.log' }
   },
   categories: {
     default: { appenders: ['Default'], level: 'info' },
     Movie: { appenders: ['Movie'], level: 'info' },
     OSS: { appenders: ['OSS'], level: 'info' },
-    HTTP: { appenders: ['HTTP'], level: 'info' }
+    HTTP: { appenders: ['HTTP'], level: 'info' },
+    Improvement: { appenders: ['Improvement'], level: 'info' }
   }
 })
 export default getLogger('default')
 export const movieLogger = getLogger('Movie')
 export const ossLogger = getLogger('OSS')
 export const httpLogger = getLogger('HTTP')
+export const improvementLogger = getLogger('Improvement')

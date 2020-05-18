@@ -42,7 +42,6 @@ export default class MovieServiceImpl implements MovieService {
         return false
       }
     })
-    console.log(qualifiedMovie.length)
     return getRandomItemFromArray(qualifiedMovie, 10)
   }
 

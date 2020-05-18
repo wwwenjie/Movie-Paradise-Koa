@@ -1,11 +1,11 @@
 import * as Router from 'koa-router'
-import MovieService from '../service/movie-service'
+import MovieServiceImpl from '../service/movie-service'
 
 const router = new Router({
   prefix: '/movies'
 })
 
-const movieService = new MovieService()
+const movieService = new MovieServiceImpl()
 
 router.get('/today', async (ctx) => {
   ctx.body = await movieService.getToday()

@@ -40,7 +40,7 @@ export default class Movie extends BaseEntity {
   poster: string
 
   @Index('movie_path')
-  @Column()
+  @Column({ unique: true })
   path: string
 
   @Column({ type: 'json' })
