@@ -19,7 +19,7 @@ test('improvement', async () => {
     aspect_ratio: 1.777777777777778,
     vote_average: 5.42
   }]
-  await improvementService.addBackdrop(movie)
+  await improvementService.addBackdrops(movie)
   await improvementService.addPoster(movie._id)
-  await improvementService.addTrailer(movie._id)
+  await improvementService.addTrailers(movie._id)
 }, 20000)

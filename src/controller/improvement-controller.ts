@@ -7,21 +7,21 @@ const router = new Router({
 
 const improvementService = new ImprovementServiceImpl()
 
-router.patch('/trailer', async (ctx) => {
-  const { id } = ctx.query
-  await improvementService.addTrailer(parseInt(id))
+router.patch('/poster', async (ctx) => {
+  const { id } = ctx.request.body
+  await improvementService.addPoster(id)
   ctx.body = { msg: 'Thanks for support' }
 })
 
-router.patch('/poster', async (ctx) => {
-  const { id } = ctx.query
-  await improvementService.addPoster(parseInt(id))
+router.patch('/trailer', async (ctx) => {
+  const { id, trailers } = ctx.request.body
+  await improvementService.addTrailers(id, trailers)
   ctx.body = { msg: 'Thanks for support' }
 })
 
 router.patch('/backdrop', async (ctx) => {
-  const { id, backdrops } = ctx.query
-  await improvementService.addBackdrop(parseInt(id), backdrops)
+  const { id, backdrops } = ctx.request.body
+  await improvementService.addBackdrops(id, backdrops)
   ctx.body = { msg: 'Thanks for support' }
 })
 
