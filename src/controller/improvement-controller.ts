@@ -9,19 +9,22 @@ const improvementService = new ImprovementServiceImpl()
 
 router.patch('/poster', async (ctx) => {
   const { id } = ctx.request.body
-  await improvementService.addPoster(id)
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  improvementService.addPoster(id)
   ctx.body = { msg: 'Thanks for support' }
 })
 
 router.patch('/trailer', async (ctx) => {
   const { id, trailers } = ctx.request.body
-  await improvementService.addTrailers(id, trailers)
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  improvementService.addTrailers(id, trailers)
   ctx.body = { msg: 'Thanks for support' }
 })
 
 router.patch('/backdrop', async (ctx) => {
   const { id, backdrops } = ctx.request.body
-  await improvementService.addBackdrops(id, backdrops)
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  improvementService.addBackdrops(id, backdrops)
   ctx.body = { msg: 'Thanks for support' }
 })
 
