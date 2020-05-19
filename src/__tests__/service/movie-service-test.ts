@@ -6,6 +6,7 @@ function getMovie (): Movie {
   const movie = new Movie()
   movie._id = 1
   movie.title = 'test title'
+  movie.title_en = 'test title'
   movie.path = 'test path'
   movie.year = 2000
   movie.release = new Date(Date.now())
@@ -17,7 +18,7 @@ function getMovie (): Movie {
     duration: '',
     language: '',
     region: '',
-    release: '',
+    release: '2020-05-19',
     summary: '',
     writer: ''
   }
@@ -36,8 +37,10 @@ test('movie service', async () => {
   const newMovie = await movieService.findByPath(movie.path)
   const testGenre = await movieService.findByGenre('genre1')
   const testActor = await movieService.findByActor('actor2')
+  const search = await movieService.search('test title')
   expect(newMovie).toStrictEqual(testGenre[0])
   expect(newMovie).toStrictEqual(testActor[0])
+  expect(newMovie).toStrictEqual(search[0])
   await Movie.delete({
     _id: newMovie._id
   })

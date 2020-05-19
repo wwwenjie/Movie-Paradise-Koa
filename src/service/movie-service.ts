@@ -1,13 +1,14 @@
 import Movie from '../entity/movie'
 import Genre from '../entity/genre'
 import Actor from '../entity/actor'
-import { LessThan, MoreThan } from 'typeorm'
+import { LessThan, Like, MoreThan } from 'typeorm'
 import { getRandomItemFromArray, notNull } from '../util'
 
 interface MovieService {
   getToday(): Promise<Movie[]>
   getNewest(limit: string, offset: string): Promise<Movie[]>
   getComing(limit: string, offset: string): Promise<Movie[]>
+  search(keyword: string): Promise<Movie[]>
   findByPath(path: string): Promise<Movie>
   findByIds(ids: string): Promise<Movie[]>
   findByGenre(genre: string, limit: string, offset: string): Promise<Movie[]>
@@ -69,6 +70,26 @@ export default class MovieServiceImpl implements MovieService {
       take: parseInt(limit),
       skip: parseInt(offset)
     })
+  }
+
+  async search (keyword: string): Promise<Movie[]> {
+    // check if keyword is chinese
+    if (/[\u4e00-\u9fa5]/.test(keyword)) {
+      return Movie.find({
+        where: {
+          title: Like(`%${keyword}%`)
+        },
+        // only take 12 to make user search more clearly
+        take: 12
+      })
+    } else {
+      return Movie.find({
+        where: {
+          title_en: Like(`%${keyword}%`)
+        },
+        take: 12
+      })
+    }
   }
 
   async findByPath (path: string): Promise<Movie> {

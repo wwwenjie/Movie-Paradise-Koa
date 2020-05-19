@@ -26,20 +26,23 @@ router.get('/:path', async (ctx) => {
 })
 
 router.get('/', async (ctx) => {
-  const { ids, genre, actor, limit, offset } = ctx.query
+  // todo: more elegant way to switch
+  const { ids, genre, actor, limit, offset, keyword } = ctx.query
+  if (keyword !== undefined) {
+    ctx.body = await movieService.search(keyword)
+    return
+  }
   if (ids !== undefined) {
     ctx.body = await movieService.findByIds(ids)
     return
   }
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions,@typescript-eslint/strict-boolean-expressions
-  console.time(`movie query ${genre || 'actor'} ${actor || 'genre'} ${limit} ${offset}`)
   if (actor !== undefined) {
     ctx.body = await movieService.findByActor(actor, limit, offset)
-  } else {
+    return
+  }
+  if (genre !== undefined) {
     ctx.body = await movieService.findByGenre(genre, limit, offset)
   }
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions,@typescript-eslint/strict-boolean-expressions
-  console.timeEnd(`movie query ${genre || 'actor'} ${actor || 'genre'} ${limit} ${offset}`)
 })
 
 router.put('/', async (ctx) => {
