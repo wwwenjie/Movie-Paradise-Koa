@@ -4,23 +4,23 @@ import * as request from 'superagent'
 import { improvementLogger as logger } from '../core/log4js'
 
 interface ImprovementService {
-  addBackdrop(movie: Movie): Promise<void>
+  addBackdrop(id: number, backdrops: Object[]): Promise<void>
   addPoster(id: number): Promise<void>
   addTrailer(id: number): Promise<void>
 }
 
 export default class ImprovementServiceImpl implements ImprovementService {
-  async addBackdrop (movie: Movie): Promise<void> {
+  async addBackdrop (id: number, backdrops: Object[]): Promise<void> {
     const result = await Movie.update({
-      _id: movie._id
+      _id: id
     }, {
-      backdrops: movie.backdrops
+      backdrops: backdrops
     })
     if (result.raw.affectedRows === 1) {
-      logger.info(`added backdrop: id:${movie._id} length:${movie.backdrops.length}`)
+      logger.info(`added backdrop: id:${id} length:${backdrops.length}`)
     } else {
       logger.error('unexpected affected:', result)
-      logger.error('movie:', movie)
+      logger.error('id:', id)
     }
   }
 

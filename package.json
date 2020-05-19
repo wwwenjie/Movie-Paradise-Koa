@@ -16,6 +16,7 @@
     "get": "ts-node src/core/crawler.ts"
   },
   "dependencies": {
+    "@koa/cors": "^3.1.0",
     "ali-oss": "^6.8.0",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.3.0",
