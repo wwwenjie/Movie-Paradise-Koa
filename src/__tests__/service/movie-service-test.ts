@@ -45,4 +45,4 @@ test('movie service', async () => {
     _id: newMovie._id
   })
   expect(await movieService.findByPath(newMovie.path)).toBeUndefined()
-})
+}, 20000)

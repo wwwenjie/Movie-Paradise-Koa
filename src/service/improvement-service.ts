@@ -3,17 +3,17 @@ import OSS from '../util/oss'
 import { improvementLogger as logger } from '../core/log4js'
 
 interface ImprovementService {
-  addPoster(id: number): Promise<void>
-  addBackdrops(id: number, backdrops: Object[]): Promise<void>
-  addTrailers(id: number, trailers: Object[]): Promise<void>
+  patchPoster(id: number): Promise<void>
+  patchBackdrops(id: number, backdrops: Object[]): Promise<void>
+  patchTrailers(id: number, trailers: Object[]): Promise<void>
 }
 
 export default class ImprovementServiceImpl implements ImprovementService {
-  async addPoster (id: number): Promise<void> {
+  async patchPoster (id: number): Promise<void> {
     await OSS.putPoster(id, logger)
   }
 
-  async addBackdrops (id: number, backdrops: Object[]): Promise<void> {
+  async patchBackdrops (id: number, backdrops: Object[]): Promise<void> {
     const result = await Movie.update({
       _id: id
     }, {
@@ -27,7 +27,7 @@ export default class ImprovementServiceImpl implements ImprovementService {
     }
   }
 
-  async addTrailers (id: number, trailers: Object[]): Promise<void> {
+  async patchTrailers (id: number, trailers: Object[]): Promise<void> {
     try {
       const result = await Movie.update({
         _id: id

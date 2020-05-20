@@ -26,7 +26,7 @@ test('improvement', async () => {
     play_url: 'https://xxx.xxx.xxx',
     cover_url: 'https://xxx.xxx.xxx'
   }]
-  await improvementService.addBackdrops(movie._id, movie.backdrops)
-  await improvementService.addPoster(movie._id)
-  await improvementService.addTrailers(movie._id, movie.trailers)
+  await improvementService.patchBackdrops(movie._id, movie.backdrops)
+  await improvementService.patchPoster(movie._id)
+  await improvementService.patchTrailers(movie._id, movie.trailers)
 }, 20000)
