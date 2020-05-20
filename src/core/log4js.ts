@@ -1,11 +1,11 @@
 import { configure, getLogger } from 'log4js'
 configure({
   appenders: {
-    Default: { type: 'file', filename: 'app.log' },
-    Movie: { type: 'file', filename: 'movie.log' },
-    OSS: { type: 'file', filename: 'oss.log' },
-    HTTP: { type: 'file', filename: 'http.log' },
-    Improvement: { type: 'file', filename: 'improvement.log' }
+    Default: { type: 'file', filename: 'log/app.log' },
+    Movie: { type: 'file', filename: 'log/movie.log' },
+    OSS: { type: 'file', filename: 'log/oss.log' },
+    HTTP: { type: 'file', filename: 'log/http.log' },
+    Improvement: { type: 'file', filename: 'log/improvement.log' }
   },
   categories: {
     default: { appenders: ['Default'], level: 'info' },

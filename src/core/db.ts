@@ -10,8 +10,7 @@ export default createConnection({
   username: username,
   password: password,
   database: database,
-  // ts node for dev
-  entities: [path.resolve(__dirname, '../entity/*.ts')],
+  entities: [path.resolve(__dirname, '../entity/*.*')],
   synchronize: sync,
   logging: logging
 })
