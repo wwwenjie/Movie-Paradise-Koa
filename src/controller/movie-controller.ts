@@ -71,7 +71,6 @@ export default class MovieController {
   })
   @responses({ 200: { description: 'a movie match the path', schema: movieSchema } })
   static async getMovieByPath (ctx): Promise<void> {
-    console.log(ctx.params)
     ctx.body = await movieService.findByPath(ctx.params.path)
   }
 }

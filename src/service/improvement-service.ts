@@ -16,15 +16,16 @@ export default class ImprovementServiceImpl implements ImprovementService {
 
   async patchBackdrops (path: string): Promise<object|null> {
     const res = await request.get(`https://api.dianying.fm/movies/${path}`)
+    const backdrops = res.body.backdrops === undefined ? [] : res.body.backdrops
     const result = await Movie.update({
       path: path
     }, {
-      backdrops: res.body
+      backdrops: backdrops
     })
     if (result.raw.affectedRows === 1) {
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      logger.info(`added backdrops: path:${path} length:${res.body.length}`)
-      return res.body
+      logger.info(`added backdrops: path:${path} length:${backdrops.length}`)
+      return res.body.backdrops
     } else {
       logger.error('unexpected affected:', result)
       logger.error('path:', path)
