@@ -1,10 +1,9 @@
 // inspired by https://github.com/LFB/nodejs-koa-blog
 import connect from './db'
-import * as fs from 'fs'
 import * as path from 'path'
-import * as Router from 'koa-router'
-import config from '../config'
 import * as cors from '@koa/cors'
+import { SwaggerRouter } from 'koa-swagger-decorator'
+import config from '../config'
 
 export default class InitManager {
   private static app: any
@@ -14,9 +13,10 @@ export default class InitManager {
       await InitManager.initLoadDatabase()
       await InitManager.initLoadCORS()
       await InitManager.initLoadRouters()
-      const port: number = config.port
-      InitManager.app.listen(port)
-      console.log(`listen at http://localhost:${port}`)
+      InitManager.app.listen(config.port, () => {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        console.log(`listen at http://localhost:${config.port}`)
+      })
     })().catch(err => {
       console.error(err)
     })
@@ -32,15 +32,16 @@ export default class InitManager {
   }
 
   private static async initLoadRouters (): Promise<void> {
-    const dir = path.resolve(__dirname, '../controller/')
-    const files = fs.readdirSync(dir)
-    for (const file of files) {
-      const route = await import(path.join(dir, file))
-      if (route.default instanceof Router) {
-        InitManager.app.use(route.default.routes())
-        console.log('Routes loaded')
-      }
-    }
+    const router = new SwaggerRouter()
+    router.swagger({
+      title: 'Movie Paradise API V1 Server',
+      description: 'Movie Paradise API DOC',
+      version: '1.0.0'
+    })
+    router.mapDir(path.resolve(__dirname, '../controller/'))
+    // @ts-ignore
+    InitManager.app.use(router.routes())
+    console.log('Routes loaded.')
   }
 
   private static async initLoadCORS (): Promise<void> {
