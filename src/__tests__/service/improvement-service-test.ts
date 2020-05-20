@@ -19,7 +19,14 @@ test('improvement', async () => {
     aspect_ratio: 1.777777777777778,
     vote_average: 5.42
   }]
-  await improvementService.addBackdrops(movie)
-  await improvementService.addPoster(movie._id)
-  await improvementService.addTrailers(movie._id)
+  movie.trailers = [{
+    m: 1292001,
+    _id: 'db_255271',
+    name: '中国预告片1：启航版 (中文字幕)',
+    play_url: 'https://xxx.xxx.xxx',
+    cover_url: 'https://xxx.xxx.xxx'
+  }]
+  await improvementService.patchBackdrops(movie._id, movie.backdrops)
+  await improvementService.patchPoster(movie._id)
+  await improvementService.patchTrailers(movie._id, movie.trailers)
 }, 20000)
