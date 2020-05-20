@@ -1,5 +1,5 @@
 import ImprovementServiceImpl from '../service/improvement-service'
-import { body, prefix, request, responses, summary, tagsAll } from 'koa-swagger-decorator/dist'
+import { body, prefix, request, summary, tagsAll } from 'koa-swagger-decorator/dist'
 import { movieProperties } from './swagger-definition'
 
 const improvementService = new ImprovementServiceImpl()
@@ -26,21 +26,18 @@ export default class ImprovementController {
   })
   static async patchTrailers (ctx): Promise<void> {
     const { id } = ctx.request.body
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    improvementService.patchTrailers(id)
-    ctx.body = { msg: 'Thanks for support' }
+    ctx.body = await improvementService.patchTrailers(id)
   }
 
   @request('patch', '/backdrops')
   @summary('patch backdrops to database')
   @body({
-    id: movieProperties._id,
-    backdrops: movieProperties.backdrops
+    id: movieProperties._id
   })
   static async patchBackdrops (ctx): Promise<void> {
-    const { id, backdrops } = ctx.request.body
+    const { path } = ctx.request.body
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    improvementService.patchBackdrops(id, backdrops)
+    improvementService.patchBackdrops(path)
     ctx.body = { msg: 'Thanks for support' }
   }
 }

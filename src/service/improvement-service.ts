@@ -5,8 +5,8 @@ import * as request from 'superagent'
 
 interface ImprovementService {
   patchPoster(id: number): Promise<void>
-  patchBackdrops(id: number, backdrops: Object[]): Promise<void>
-  patchTrailers(id: number): Promise<void>
+  patchBackdrops(path: string): Promise<object|null>
+  patchTrailers(id: number): Promise<object|null>
 }
 
 export default class ImprovementServiceImpl implements ImprovementService {
@@ -14,21 +14,25 @@ export default class ImprovementServiceImpl implements ImprovementService {
     await OSS.putPoster(id, logger)
   }
 
-  async patchBackdrops (id: number, backdrops: Object[]): Promise<void> {
+  async patchBackdrops (path: string): Promise<object|null> {
+    const res = await request.get(`https://api.dianying.fm/movies/${path}`)
     const result = await Movie.update({
-      _id: id
+      path: path
     }, {
-      backdrops: backdrops
+      backdrops: res.body
     })
     if (result.raw.affectedRows === 1) {
-      logger.info(`added backdrops: id:${id} length:${backdrops.length}`)
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      logger.info(`added backdrops: path:${path} length:${res.body.length}`)
+      return res.body
     } else {
       logger.error('unexpected affected:', result)
-      logger.error('id:', id)
+      logger.error('path:', path)
+      return null
     }
   }
 
-  async patchTrailers (id: number): Promise<void> {
+  async patchTrailers (id: number): Promise<object|null> {
     try {
       const res = await request.get(`https://api.dianying.fm/trailers/${id}`)
       const result = await Movie.update({
@@ -39,9 +43,11 @@ export default class ImprovementServiceImpl implements ImprovementService {
       if (result.raw.affectedRows === 1) {
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         logger.info(`added trailer: id:${id} length:${res.body.length}`)
+        return res.body
       } else {
         logger.error('unexpected affected:', result)
         logger.error('trailers:', res.body)
+        return null
       }
     } catch (err) {
       logger.error('add trailer error:', err)
