@@ -22,13 +22,12 @@ export default class ImprovementController {
   @request('patch', '/trailers')
   @summary('patch trailers to database')
   @body({
-    id: movieProperties._id,
-    trailers: movieProperties.trailers
+    id: movieProperties._id
   })
   static async patchTrailers (ctx): Promise<void> {
-    const { id, trailers } = ctx.request.body
+    const { id } = ctx.request.body
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    improvementService.patchTrailers(id, trailers)
+    improvementService.patchTrailers(id)
     ctx.body = { msg: 'Thanks for support' }
   }
 

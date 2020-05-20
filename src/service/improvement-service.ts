@@ -1,11 +1,12 @@
 import Movie from '../entity/movie'
 import OSS from '../util/oss'
 import { improvementLogger as logger } from '../core/log4js'
+import * as request from 'superagent'
 
 interface ImprovementService {
   patchPoster(id: number): Promise<void>
   patchBackdrops(id: number, backdrops: Object[]): Promise<void>
-  patchTrailers(id: number, trailers: Object[]): Promise<void>
+  patchTrailers(id: number): Promise<void>
 }
 
 export default class ImprovementServiceImpl implements ImprovementService {
@@ -27,19 +28,20 @@ export default class ImprovementServiceImpl implements ImprovementService {
     }
   }
 
-  async patchTrailers (id: number, trailers: Object[]): Promise<void> {
+  async patchTrailers (id: number): Promise<void> {
     try {
+      const res = await request.get(`https://api.dianying.fm/trailers/${id}`)
       const result = await Movie.update({
         _id: id
       }, {
-        trailers: trailers
+        trailers: res.body
       })
       if (result.raw.affectedRows === 1) {
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        logger.info(`added trailer: id:${id} length:${trailers.length}`)
+        logger.info(`added trailer: id:${id} length:${res.body.length}`)
       } else {
         logger.error('unexpected affected:', result)
-        logger.error('trailers:', trailers)
+        logger.error('trailers:', res.body)
       }
     } catch (err) {
       logger.error('add trailer error:', err)
