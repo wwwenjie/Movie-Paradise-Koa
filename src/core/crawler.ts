@@ -4,6 +4,9 @@ import { movieLogger as logger, httpLogger } from './log4js'
 import InitManager from './init'
 import Movie from '../entity/movie'
 import OSS from '../util/oss'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as readline from 'readline'
 
 // todo: back up database function
 class GetMovieFromAPI {
@@ -13,8 +16,9 @@ class GetMovieFromAPI {
   // use for fastMode, dont request poster and trailer
   private static readonly pureFast: boolean = true
   // store id already added, avoid unnecessary query
-  private static readonly all: Set<number|string> = new Set()
-  private static readonly task: Set<number|string> = new Set()
+  private static readonly all: Set<number> = new Set()
+  private static readonly task: Set<number> = new Set()
+  private static readonly invalid: Set<number> = new Set()
   private static readonly msg: object = { email: 'jinwenjie@live.com', msg: 'Hello, I am getting your data through program, because there is no robots, please contact me if it bothers you, sorry for the inconvenient' }
   private static readonly url: string = 'https://api.dianying.fm/movies?ids='
   private static new: number = 0
@@ -35,6 +39,8 @@ class GetMovieFromAPI {
       console.log(this.new)
       console.log('=========all==========')
       console.log(this.all.size)
+      console.log('========invalid=======')
+      console.log(this.invalid.size)
     }, 15000)
     setInterval(() => {
       httpLogger.info('Get >>>>>> (msg) https://api.dianying.fm/movies')
@@ -60,19 +66,27 @@ class GetMovieFromAPI {
       this.all.add(movie._id)
     })
     console.timeEnd('adding all')
-    // make sure you have at least one movie in database
-    // add task
-    console.time('adding task')
-    totalMovies.map(movie => {
-      if (movie.recs !== undefined && movie.recs !== null) {
-        movie.recs.map(id => {
-          if (!this.all.has(id)) {
-            this.task.add(id)
-          }
-        })
-      }
+    console.time('adding invalid')
+    const readStream = fs.createReadStream(path.resolve(__dirname, './invalid.txt'))
+    const rl = readline.createInterface(readStream)
+    rl.on('line', (line) => {
+      this.invalid.add(parseInt(line))
     })
-    console.timeEnd('adding task')
+    rl.on('close', () => {
+      // make sure you have at least one movie in database
+      // add task
+      console.time('adding task')
+      totalMovies.map(movie => {
+        if (movie.recs !== undefined && movie.recs !== null) {
+          movie.recs.map(id => {
+            if (!this.all.has(id) && !this.invalid.has(id)) {
+              this.task.add(id)
+            }
+          })
+        }
+      })
+      console.timeEnd('adding task')
+    })
   }
 
   private static async handleTask (): Promise<void> {
@@ -81,7 +95,7 @@ class GetMovieFromAPI {
       try {
         let counter = 0
         this.task.forEach((id) => {
-          if (counter < 30) {
+          if (counter < 60) {
             ids.push(id)
             this.task.delete(id)
             counter++
@@ -102,6 +116,20 @@ class GetMovieFromAPI {
       httpLogger.info(`Get >>>>>> (getMovies) ${this.url + query}`)
       console.log('========request: ', this.url + query)
       const res = await request.get(this.url + query)
+      const ids: Set<string> = new Set()
+      query.split('-').map(id => {
+        ids.add(id)
+      })
+      res.body.map(movie => {
+        ids.delete(movie._id)
+      })
+      const writerStream = fs.createWriteStream(path.resolve(__dirname, './invalid.txt'), { flags: 'a+' })
+      writerStream.setDefaultEncoding('UTF8')
+      ids.forEach(id => {
+        this.invalid.add(parseInt(id))
+        writerStream.write(id + '\n')
+      })
+      writerStream.end()
       if (res.body.length < 5) {
         await this.sleep(1000)
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
