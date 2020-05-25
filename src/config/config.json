@@ -13,7 +13,7 @@
   "cors": {
     "allowOrigin": [
       "http://localhost:8080",
-      "https://movie.jinwenjie.me"
+      "https://movieparadise.netlify.app"
     ]
   },
   "ossConfig": {
