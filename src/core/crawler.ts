@@ -67,7 +67,7 @@ class GetMovieFromAPI {
     })
     console.timeEnd('adding all')
     console.time('adding invalid')
-    const readStream = fs.createReadStream(path.resolve(__dirname, './invalid.txt'))
+    const readStream = fs.createReadStream(path.resolve(__dirname, './invalid.log'))
     const rl = readline.createInterface(readStream)
     rl.on('line', (line) => {
       this.invalid.add(parseInt(line))
@@ -95,7 +95,7 @@ class GetMovieFromAPI {
       try {
         let counter = 0
         this.task.forEach((id) => {
-          if (counter < 60) {
+          if (counter < 100) {
             ids.push(id)
             this.task.delete(id)
             counter++
@@ -123,7 +123,7 @@ class GetMovieFromAPI {
       res.body.map(movie => {
         ids.delete(movie._id)
       })
-      const writerStream = fs.createWriteStream(path.resolve(__dirname, './invalid.txt'), { flags: 'a+' })
+      const writerStream = fs.createWriteStream(path.resolve(__dirname, './invalid.log'), { flags: 'a+' })
       writerStream.setDefaultEncoding('UTF8')
       ids.forEach(id => {
         this.invalid.add(parseInt(id))

@@ -174,7 +174,7 @@ export default class MovieServiceImpl implements MovieService {
     if (movie.info.actors === undefined) {
       return movie
     }
-    const actorValues = movie.info.actors.split('/')
+    const actorValues = Array.from(new Set(movie.info.actors.split('/')))
     const actorEntity = []
     await Promise.all(actorValues.map(async actorName => {
       const actor = await Actor.findOne({
