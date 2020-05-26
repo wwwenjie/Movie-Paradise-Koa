@@ -90,3 +90,16 @@ export const movieArraySchema = {
     properties: movieProperties
   }
 }
+
+export const genreProperties = {
+  name: { type: 'string', example: '喜剧' },
+  name_en: { type: 'string', example: 'Comedy' }
+}
+
+export const genreArraySchema = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: genreProperties
+  }
+}

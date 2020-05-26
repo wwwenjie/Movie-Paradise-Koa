@@ -1,5 +1,5 @@
 import ImprovementServiceImpl from '../service/improvement-service'
-import { body, prefix, request, summary, tagsAll } from 'koa-swagger-decorator/dist'
+import { body, prefix, request, responses, summary, tagsAll } from 'koa-swagger-decorator/dist'
 import { movieProperties } from './swagger-definition'
 
 const improvementService = new ImprovementServiceImpl()
@@ -21,6 +21,7 @@ export default class ImprovementController {
 
   @request('patch', '/trailers')
   @summary('patch trailers to database')
+  @responses({ 200: { description: 'trailers', schema: movieProperties.trailers } })
   @body({
     id: movieProperties._id
   })
