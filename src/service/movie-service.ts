@@ -5,7 +5,7 @@ import { LessThan, Like, MoreThan } from 'typeorm'
 import { getRandomItemFromArray, notNull } from '../util'
 
 interface MovieService {
-  getToday(): Promise<Movie[]>
+  getToday(): Promise<Movie>
   getNewest(limit: string, offset: string): Promise<Movie[]>
   getComing(limit: string, offset: string): Promise<Movie[]>
   search(keyword: string): Promise<Movie[]>
@@ -21,7 +21,7 @@ interface MovieService {
 
 export default class MovieServiceImpl implements MovieService {
   // return 10 of high score, new movies, front end will store its id to make sure it wont change in one day
-  async getToday (): Promise<Movie[]> {
+  async getToday (): Promise<Movie> {
     const movies = await Movie.find({
       where: {
         release: LessThan(new Date(Date.now()))
@@ -35,6 +35,9 @@ export default class MovieServiceImpl implements MovieService {
       if (!notNull(movie.rating)) {
         return false
       }
+      if (!notNull(movie.trailers) || movie.trailers.length === 0) {
+        return false
+      }
       if (notNull(movie.rating.douban_score)) {
         return parseFloat(movie.rating.douban_score) > 8.0
       } else if (notNull(movie.rating.imdb_score)) {
@@ -43,7 +46,7 @@ export default class MovieServiceImpl implements MovieService {
         return false
       }
     })
-    return getRandomItemFromArray(qualifiedMovie, 10)
+    return getRandomItemFromArray(qualifiedMovie, 1)[0]
   }
 
   async getNewest (limit: string = '8', offset: string = '0'): Promise<Movie[]> {
