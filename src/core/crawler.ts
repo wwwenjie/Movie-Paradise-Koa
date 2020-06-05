@@ -62,7 +62,7 @@ class GetMovieFromAPI {
     })
     console.timeEnd('loading db')
     console.time('adding all')
-    totalMovies.map(movie => {
+    totalMovies.forEach(movie => {
       this.all.add(movie._id)
     })
     console.timeEnd('adding all')
@@ -76,9 +76,9 @@ class GetMovieFromAPI {
       // make sure you have at least one movie in database
       // add task
       console.time('adding task')
-      totalMovies.map(movie => {
+      totalMovies.forEach(movie => {
         if (movie.recs !== undefined && movie.recs !== null) {
-          movie.recs.map(id => {
+          movie.recs.forEach(id => {
             if (!this.all.has(id) && !this.invalid.has(id)) {
               this.task.add(id)
             }
@@ -117,10 +117,10 @@ class GetMovieFromAPI {
       console.log('========request: ', this.url + query)
       const res = await request.get(this.url + query)
       const ids: Set<string> = new Set()
-      query.split('-').map(id => {
+      query.split('-').forEach(id => {
         ids.add(id)
       })
-      res.body.map(movie => {
+      res.body.forEach(movie => {
         ids.delete(movie._id)
       })
       const writerStream = fs.createWriteStream(path.resolve(__dirname, './invalid.log'), { flags: 'a+' })
@@ -147,7 +147,7 @@ class GetMovieFromAPI {
         await this.createMovie(movie)
         // add recs movies to task
         if (movie.recs !== undefined && movie.recs !== null) {
-          movie.recs.map(id => {
+          movie.recs.forEach(id => {
             if (!this.all.has(id)) {
               this.task.add(id)
             }
@@ -160,7 +160,7 @@ class GetMovieFromAPI {
         await this.createMovie(movie)
         // add recs movies to task
         if (movie.recs !== undefined && movie.recs !== null) {
-          movie.recs.map(id => {
+          movie.recs.forEach(id => {
             if (!this.all.has(id)) {
               this.task.add(id)
             }
