@@ -23,6 +23,7 @@
     "koa-router": "^8.0.8",
     "koa-swagger-decorator": "^1.6.4",
     "log4js": "^6.2.1",
+    "mongodb": "^3.5.8",
     "mysql2": "^2.1.0",
     "reflect-metadata": "^0.1.13",
     "require-directory": "^2.1.1",
