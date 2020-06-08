@@ -4,12 +4,15 @@ import * as path from 'path'
 import * as cors from '@koa/cors'
 import { SwaggerRouter } from 'koa-swagger-decorator'
 import config from '../config'
+import CError from '../error/CError'
+import logger from './log4js'
 
 export default class InitManager {
   private static app: any
   public static initCore (app): void {
     InitManager.app = app
     ;(async () => {
+      await InitManager.initLoadErrorHandler()
       await InitManager.initLoadDatabase()
       await InitManager.initLoadCORS()
       await InitManager.initLoadRouters()
@@ -19,6 +22,23 @@ export default class InitManager {
       })
     })().catch(err => {
       console.error(err)
+    })
+  }
+
+  public static async initLoadErrorHandler (): Promise<void> {
+    InitManager.app.use(async (ctx, next) => {
+      try {
+        await next()
+      } catch (error) {
+        if (error instanceof CError) {
+          ctx.body = error
+          ctx.status = error.status
+        } else {
+          logger.error(error)
+          ctx.body = error.message
+          ctx.status = 500
+        }
+      }
     })
   }
 

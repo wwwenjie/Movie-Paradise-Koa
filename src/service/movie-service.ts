@@ -6,17 +6,28 @@ import { getRandomItemFromArray, notNull } from '../util'
 
 interface MovieService {
   getToday(): Promise<Movie>
+
   getNewest(limit: string, offset: string): Promise<Movie[]>
+
   getComing(limit: string, offset: string): Promise<Movie[]>
+
   search(keyword: string): Promise<Movie[]>
+
   findByPath(path: string): Promise<Movie>
+
   findByIds(ids: string): Promise<Movie[]>
+
   findByGenre(genre: string, limit: string, offset: string): Promise<Movie[]>
+
   findByActor(actor: string, limit: string, offset: string): Promise<Movie[]>
+
   update(movie: Movie): Promise<void | Error>
+
   create(movie: Movie): Promise<void | Error>
-  handelGenre (movie: Movie): Promise<Movie>
-  handelActor (movie: Movie): Promise<Movie>
+
+  handelGenre(movie: Movie): Promise<Movie>
+
+  handelActor(movie: Movie): Promise<Movie>
 }
 
 export default class MovieServiceImpl implements MovieService {
@@ -196,7 +207,7 @@ export default class MovieServiceImpl implements MovieService {
     return movie
   }
 
-  setValues (movie: Movie): void{
+  setValues (movie: Movie): void {
     // change poster
     movie.poster = 'https://img.dianying.fm/poster/' + movie._id.toString()
     const date = RegExp(/\d{4}-\d{2}-\d{2}/)

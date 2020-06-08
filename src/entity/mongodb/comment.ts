@@ -23,6 +23,10 @@ export default class Comment {
   @Column()
   rating: number
 
+  // parent id
+  @Column()
+  pid: number
+
   @CreateDateColumn()
   create_time: Date
 

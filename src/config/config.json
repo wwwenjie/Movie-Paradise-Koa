@@ -14,7 +14,8 @@
     "type": "mongodb",
     "host": "localhost",
     "port": 27017,
-    "database": "database name"
+    "database": "database name",
+    "sync": false
   },
   "cors": {
     "allowOrigin": [

@@ -20,5 +20,6 @@ export default createConnections([{
   host: config.mongodb.host,
   port: config.mongodb.port,
   database: config.mongodb.database,
-  entities: [path.resolve(__dirname, '../entity/mongodb/*.*')]
+  entities: [path.resolve(__dirname, '../entity/mongodb/*.*')],
+  synchronize: config.mongodb.sync
 }])
