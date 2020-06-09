@@ -26,7 +26,7 @@ test('user service', async () => {
   const loginResult = await userService.login(user)
   user._id = loginResult.uid
   await userService.update(user)
-  const updatedUser = await userService.findByUid(user._id)
+  const updatedUser = await userService.getByUid(user._id.toString())
   expect(updatedUser.name).toStrictEqual(user.name)
   await userService.delete(loginResult.uid)
 })

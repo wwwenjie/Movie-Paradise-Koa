@@ -1,5 +1,6 @@
 import User from '../entity/mongodb/user'
-import { getConnection, ObjectID } from 'typeorm'
+import { getConnection } from 'typeorm'
+import { ObjectID } from 'mongodb'
 import E from '../error/ErrorEnum'
 
 interface UserService {
@@ -9,9 +10,11 @@ interface UserService {
 
   update(user: User): Promise<void>
 
-  delete(uid: ObjectID): Promise<void>
+  delete(uid: String): Promise<void>
 
-  findByUid(uid: ObjectID): Promise<User>
+  getByUid(uid: String): Promise<User>
+
+  getUserList(limit: string, offset: string): Promise<User[]>
 }
 
 export default class UserServiceImpl implements UserService {
@@ -48,15 +51,22 @@ export default class UserServiceImpl implements UserService {
     await this.userRepository.save(user)
   }
 
-  async delete (uid: ObjectID): Promise<void> {
+  async delete (uid: String): Promise<void> {
     await this.userRepository.deleteOne({
-      _id: uid
+      _id: ObjectID(uid)
     })
   }
 
-  async findByUid (uid: ObjectID): Promise<User> {
+  async getByUid (uid: String): Promise<User> {
     return await this.userRepository.findOne({
-      _id: uid
+      _id: ObjectID(uid)
+    })
+  }
+
+  async getUserList (limit: string = '8', offset: string = '0'): Promise<User[]> {
+    return await this.userRepository.find({
+      take: parseInt(limit),
+      skip: parseInt(offset)
     })
   }
 }

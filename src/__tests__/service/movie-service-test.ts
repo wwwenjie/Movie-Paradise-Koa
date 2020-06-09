@@ -34,9 +34,9 @@ test('movie service', async () => {
   } else {
     await movieService.create(movie)
   }
-  const newMovie = await movieService.findByPath(movie.path)
-  const testGenre = await movieService.findByGenre('genre1')
-  const testActor = await movieService.findByActor('actor2')
+  const newMovie = await movieService.getByPath(movie.path)
+  const testGenre = await movieService.getByGenre('genre1')
+  const testActor = await movieService.getByActor('actor2')
   const search = await movieService.search('test title')
   expect(newMovie).toStrictEqual(testGenre[0])
   expect(newMovie).toStrictEqual(testActor[0])
@@ -44,5 +44,5 @@ test('movie service', async () => {
   await Movie.delete({
     _id: newMovie._id
   })
-  expect(await movieService.findByPath(newMovie.path)).toBeUndefined()
+  expect(await movieService.getByPath(newMovie.path)).toBeUndefined()
 }, 20000)

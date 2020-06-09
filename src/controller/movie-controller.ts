@@ -19,15 +19,15 @@ export default class MovieController {
       return
     }
     if (ids !== undefined) {
-      ctx.body = await movieService.findByIds(ids)
+      ctx.body = await movieService.getByIds(ids)
       return
     }
     if (actor !== undefined) {
-      ctx.body = await movieService.findByActor(actor, limit, offset)
+      ctx.body = await movieService.getByActor(actor, limit, offset)
       return
     }
     if (genre !== undefined) {
-      ctx.body = await movieService.findByGenre(genre, limit, offset)
+      ctx.body = await movieService.getByGenre(genre, limit, offset)
     }
   }
 
@@ -71,6 +71,6 @@ export default class MovieController {
   })
   @responses({ 200: { description: 'a movie match the path', schema: movieSchema } })
   static async getMovieByPath (ctx): Promise<void> {
-    ctx.body = await movieService.findByPath(ctx.params.path)
+    ctx.body = await movieService.getByPath(ctx.params.path)
   }
 }

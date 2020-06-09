@@ -13,13 +13,13 @@ interface MovieService {
 
   search(keyword: string): Promise<Movie[]>
 
-  findByPath(path: string): Promise<Movie>
+  getByPath(path: string): Promise<Movie>
 
-  findByIds(ids: string): Promise<Movie[]>
+  getByIds(ids: string): Promise<Movie[]>
 
-  findByGenre(genre: string, limit: string, offset: string): Promise<Movie[]>
+  getByGenre(genre: string, limit: string, offset: string): Promise<Movie[]>
 
-  findByActor(actor: string, limit: string, offset: string): Promise<Movie[]>
+  getByActor(actor: string, limit: string, offset: string): Promise<Movie[]>
 
   update(movie: Movie): Promise<void | Error>
 
@@ -106,18 +106,18 @@ export default class MovieServiceImpl implements MovieService {
     }
   }
 
-  async findByPath (path: string): Promise<Movie> {
+  async getByPath (path: string): Promise<Movie> {
     return Movie.findOne({
       path: path
     })
   }
 
-  async findByIds (ids: string): Promise<Movie[]> {
+  async getByIds (ids: string): Promise<Movie[]> {
     const idsArray = ids.split('-').map(Number)
     return Movie.findByIds(idsArray)
   }
 
-  async findByActor (actor: string, limit: string = '8', offset: string = '0'): Promise<Movie[]> {
+  async getByActor (actor: string, limit: string = '8', offset: string = '0'): Promise<Movie[]> {
     const query = await Movie.query('SELECT movie_id as id FROM movie_actor WHERE ' +
       'actor_id = (SELECT actor_id FROM actor WHERE name = ?) LIMIT ? OFFSET ?',
     [actor, parseInt(limit), parseInt(offset)])
@@ -132,7 +132,7 @@ export default class MovieServiceImpl implements MovieService {
       .getMany()
   }
 
-  async findByGenre (genre: string, limit: string = '8', offset: string = '0'): Promise<Movie[]> {
+  async getByGenre (genre: string, limit: string = '8', offset: string = '0'): Promise<Movie[]> {
     // security
     const query = await Movie.query('SELECT movie_id as id FROM movie_genre WHERE ' +
       'genre_id = (SELECT genre_id FROM genre WHERE name = ?) LIMIT ? OFFSET ?',
