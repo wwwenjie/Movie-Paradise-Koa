@@ -7,10 +7,9 @@ test('improvement', async () => {
   await InitManager.initLoadDatabase()
   const improvementService = new ImprovementServiceImpl()
   const movieService = new MovieServiceImpl()
-  const movies = await movieService.getToday()
+  const movies = await movieService.getNewest()
   const movie = getRandomItemFromArray(movies, 1)[0]
-  console.log(movie._id)
-  await improvementService.patchBackdrops(movie._id)
+  await improvementService.patchBackdrops(movie.path)
   await improvementService.patchPoster(movie._id)
   await improvementService.patchTrailers(movie._id)
 }, 20000)

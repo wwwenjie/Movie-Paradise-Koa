@@ -1,34 +1,62 @@
 import User from '../entity/mongodb/user'
-import { getConnection } from 'typeorm'
-import CError from '../error/CError'
-
-const userRepository = getConnection('mongodb').getMongoRepository(User)
+import { getConnection, ObjectID } from 'typeorm'
+import E from '../error/ErrorEnum'
 
 interface UserService {
-  login(user: User): Promise<string>
+  login(user: User): Promise<{ uid: ObjectID, token: string }>
 
   register(user: User): Promise<void>
+
+  update(user: User): Promise<void>
+
+  delete(uid: ObjectID): Promise<void>
+
+  findByUid(uid: ObjectID): Promise<User>
 }
 
 export default class UserServiceImpl implements UserService {
-  async login (user: User): Promise<string> {
-    const result = await userRepository.findOne({
+  private readonly userRepository = getConnection('mongodb').getMongoRepository(User)
+
+  async login (user: User): Promise<{ uid: ObjectID, token: string }> {
+    const result = await this.userRepository.findOne({
       email: user.email,
       password: user.password
     })
     if (result !== undefined) {
-      return 'user token and uid'
+      return { uid: result._id, token: 'token' }
     } else {
-      throw new CError('email or password is wrong', 40001, 401)
+      throw E.AccountWrong
     }
   }
 
   async register (user: User): Promise<void> {
-    user.create_time = new Date()
-    try {
-      await userRepository.insert(user)
-    } catch (e) {
-      throw new CError('Email already used!', 40002, 401)
+    if (await this.userRepository.findOne({
+      name: user.name
+    }) !== undefined) {
+      throw E.NameExist
     }
+    if (await this.userRepository.findOne({
+      email: user.email
+    }) !== undefined) {
+      throw E.EmailExist
+    }
+    user.create_time = new Date()
+    await this.userRepository.insertOne(user)
+  }
+
+  async update (user: User): Promise<void> {
+    await this.userRepository.save(user)
+  }
+
+  async delete (uid: ObjectID): Promise<void> {
+    await this.userRepository.deleteOne({
+      _id: uid
+    })
+  }
+
+  async findByUid (uid: ObjectID): Promise<User> {
+    return await this.userRepository.findOne({
+      _id: uid
+    })
   }
 }

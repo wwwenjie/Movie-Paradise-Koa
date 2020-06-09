@@ -1,4 +1,4 @@
-import MovieService from '../../service/movie-service'
+import MovieServiceImpl from '../../service/movie-service'
 import InitManager from '../../core/init'
 import Movie from '../../entity/movie'
 
@@ -27,7 +27,7 @@ function getMovie (): Movie {
 
 test('movie service', async () => {
   await InitManager.initLoadDatabase()
-  const movieService = new MovieService()
+  const movieService = new MovieServiceImpl()
   const movie = getMovie()
   if (Movie.hasId(movie)) {
     await movieService.update(movie)
