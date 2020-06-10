@@ -13,7 +13,7 @@ export default class MovieController {
   @query(getMoviesQuery)
   @responses({ 200: { description: 'query movies array', schema: movieArraySchema } })
   @time()
-  static async getMovies (ctx): Promise<void> {
+  async getMovies (ctx): Promise<void> {
     // todo: more elegant way to switch
     const { ids, genre, actor, limit, offset, keyword } = ctx.query
     if (keyword !== undefined) {
@@ -37,7 +37,7 @@ export default class MovieController {
   @body(movieProperties)
   @summary('update a movie (fully)')
   @time()
-  static async updateMovie (ctx): Promise<void> {
+  async updateMovie (ctx): Promise<void> {
     await movieService.update(ctx.request.body)
     ctx.body = { code: 200, msg: 'success' }
   }
@@ -46,7 +46,7 @@ export default class MovieController {
   @summary('get today movies (10 of high score, new movies)')
   @responses({ 200: { description: 'today movies array', schema: movieArraySchema } })
   @time()
-  static async getToday (ctx): Promise<void> {
+  async getToday (ctx): Promise<void> {
     ctx.body = await movieService.getToday()
   }
 
@@ -55,7 +55,7 @@ export default class MovieController {
   @query(pagingQuery)
   @responses({ 200: { description: 'new movies array', schema: movieArraySchema } })
   @time()
-  static async getNewest (ctx): Promise<void> {
+  async getNewest (ctx): Promise<void> {
     const { limit, offset } = ctx.query
     ctx.body = await movieService.getNewest(limit, offset)
   }
@@ -65,7 +65,7 @@ export default class MovieController {
   @query(pagingQuery)
   @responses({ 200: { description: 'coming movies array', schema: movieArraySchema } })
   @time()
-  static async getComing (ctx): Promise<void> {
+  async getComing (ctx): Promise<void> {
     const { limit, offset } = ctx.query
     ctx.body = await movieService.getComing(limit, offset)
   }
@@ -77,7 +77,7 @@ export default class MovieController {
   })
   @responses({ 200: { description: 'a movie match the path', schema: movieSchema } })
   @time()
-  static async getMovieByPath (ctx): Promise<void> {
+  async getMovieByPath (ctx): Promise<void> {
     ctx.body = await movieService.getByPath(ctx.params.path)
   }
 }

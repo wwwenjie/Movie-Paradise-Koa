@@ -12,7 +12,7 @@ export default class GenreController {
   })
   @summary('get genres')
   @responses({ 200: { description: 'genre array', schema: genreArraySchema } })
-  static async getGenres (ctx): Promise<void> {
+  async getGenres (ctx): Promise<void> {
     let { limit, offset } = ctx.query
     limit = limit == null ? 6 : limit
     offset = offset == null ? 0 : offset

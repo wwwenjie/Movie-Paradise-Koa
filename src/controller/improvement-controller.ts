@@ -12,7 +12,7 @@ export default class ImprovementController {
   @body({
     id: movieProperties._id
   })
-  static async patchPoster (ctx): Promise<void> {
+  async patchPoster (ctx): Promise<void> {
     const { id } = ctx.request.body
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     improvementService.patchPoster(id)
@@ -25,7 +25,7 @@ export default class ImprovementController {
   @body({
     id: movieProperties._id
   })
-  static async patchTrailers (ctx): Promise<void> {
+  async patchTrailers (ctx): Promise<void> {
     const { id } = ctx.request.body
     ctx.body = await improvementService.patchTrailers(id)
   }
@@ -35,7 +35,7 @@ export default class ImprovementController {
   @body({
     id: movieProperties._id
   })
-  static async patchBackdrops (ctx): Promise<void> {
+  async patchBackdrops (ctx): Promise<void> {
     const { path } = ctx.request.body
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     improvementService.patchBackdrops(path)
