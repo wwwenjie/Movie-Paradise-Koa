@@ -20,7 +20,8 @@ export default class UserController {
         type: 'object',
         properties: {
           uid: { type: 'string', example: '5edf5ade1c0ca52410508138' },
-          token: { type: 'string', example: 'eyJpc3MiOiJKb2huI.eyJpc3MiOiJ.Kb2huIFd1IEp' }
+          token: { type: 'string', example: 'eyJpc3MiOiJKb2huI.eyJpc3MiOiJ.Kb2huIFd1IEp' },
+          name: { type: 'string', example: 'admin' }
         }
       }
     }

@@ -23,6 +23,9 @@ export default class User {
   avatar: string
 
   @Column()
+  interests: [string]
+
+  @Column()
   list: [number]
 
   @Column()

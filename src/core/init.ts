@@ -73,7 +73,8 @@ export default class InitManager {
         if (allowOrigin.includes(ctx.request.header.origin)) {
           return ctx.request.header.origin
         }
-      }
+      },
+      keepHeadersOnError: false
     }
     ))
   }

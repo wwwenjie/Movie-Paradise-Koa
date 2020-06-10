@@ -6,7 +6,7 @@ import * as jwt from 'jsonwebtoken'
 import config from '../config'
 
 interface UserService {
-  login(user: User): Promise<{ uid: ObjectID, token: string }>
+  login(user: User): Promise<{ uid: ObjectID, token: string, name: string }>
 
   register(user: User): Promise<void>
 
@@ -22,7 +22,7 @@ interface UserService {
 export default class UserServiceImpl implements UserService {
   private readonly userRepository = getConnection('mongodb').getMongoRepository(User)
 
-  async login (user: User): Promise<{ uid: ObjectID, token: string }> {
+  async login (user: User): Promise<{ uid: ObjectID, token: string, name: string }> {
     const result = await this.userRepository.findOne({
       email: user.email,
       password: user.password
@@ -32,7 +32,7 @@ export default class UserServiceImpl implements UserService {
       const token = jwt.sign({
         uid: result._id
       }, config.jwtSecret)
-      return { uid: result._id, token: token }
+      return { uid: result._id, token: token, name: result.name }
     } else {
       throw E.AccountWrong
     }
