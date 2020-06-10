@@ -29,5 +29,6 @@
     "bucket": "",
     "region": ""
   },
-  "ossLocalPath": ""
+  "ossLocalPath": "",
+  "jwtSecret": "secret"
 }

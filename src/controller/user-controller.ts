@@ -1,5 +1,6 @@
 import UserServiceImpl from '../service/user-service'
 import { body, path, prefix, query, request, responses, summary, tagsAll } from 'koa-swagger-decorator/dist'
+import { check, checkAdmin } from '../core/jwt'
 
 const userService = new UserServiceImpl()
 
@@ -24,7 +25,7 @@ export default class UserController {
       }
     }
   })
-  static async login (ctx): Promise<void> {
+  async login (ctx): Promise<void> {
     ctx.body = await userService.login(ctx.request.body)
   }
 
@@ -35,7 +36,7 @@ export default class UserController {
     email: { type: 'string', example: 'admin' },
     password: { type: 'string', example: 'admin' }
   })
-  static async register (ctx): Promise<void> {
+  async register (ctx): Promise<void> {
     ctx.body = await userService.register(ctx.request.body)
   }
 
@@ -44,7 +45,8 @@ export default class UserController {
   @path({
     uid: { type: 'string', required: true, description: 'user id' }
   })
-  static async update (ctx): Promise<void> {
+  @check()
+  async update (ctx): Promise<void> {
     ctx.body = await userService.update(ctx.request.body)
   }
 
@@ -53,7 +55,8 @@ export default class UserController {
   @path({
     uid: { type: 'string', required: true, description: 'user id' }
   })
-  static async delete (ctx): Promise<void> {
+  @check()
+  async delete (ctx): Promise<void> {
     ctx.body = await userService.delete(ctx.params.uid)
   }
 
@@ -62,7 +65,8 @@ export default class UserController {
   @path({
     uid: { type: 'string', required: true, description: 'user id' }
   })
-  static async findByUid (ctx): Promise<void> {
+  @check()
+  async findByUid (ctx): Promise<void> {
     ctx.body = await userService.getByUid(ctx.params.uid)
   }
 
@@ -72,7 +76,8 @@ export default class UserController {
     limit: { type: 'number', default: 8 },
     offset: { type: 'number', default: 0 }
   })
-  static async getUserList (ctx): Promise<void> {
+  @checkAdmin()
+  async getUserList (ctx): Promise<void> {
     const { limit, offset } = ctx.query
     ctx.body = await userService.getUserList(limit, offset)
   }

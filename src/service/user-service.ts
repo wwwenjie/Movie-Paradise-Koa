@@ -2,6 +2,8 @@ import User from '../entity/mongodb/user'
 import { getConnection } from 'typeorm'
 import { ObjectID } from 'mongodb'
 import E from '../error/ErrorEnum'
+import * as jwt from 'jsonwebtoken'
+import config from '../config'
 
 interface UserService {
   login(user: User): Promise<{ uid: ObjectID, token: string }>
@@ -26,7 +28,11 @@ export default class UserServiceImpl implements UserService {
       password: user.password
     })
     if (result !== undefined) {
-      return { uid: result._id, token: 'token' }
+      // !permanent valid
+      const token = jwt.sign({
+        uid: result._id
+      }, config.jwtSecret)
+      return { uid: result._id, token: token }
     } else {
       throw E.AccountWrong
     }
@@ -47,6 +53,7 @@ export default class UserServiceImpl implements UserService {
     await this.userRepository.insertOne(user)
   }
 
+  // todo: try to use patch, there maybe some errors of mongodb when patch
   async update (user: User): Promise<void> {
     await this.userRepository.save(user)
   }

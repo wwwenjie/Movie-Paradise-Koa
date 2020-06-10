@@ -17,7 +17,10 @@ enum HTTP {
 const E = {
   AccountWrong: new CError('Email or password is wrong', 40001, HTTP.Unauthorized),
   NameExist: new CError('Name already used', 40002, HTTP.Conflict),
-  EmailExist: new CError('Email already used', 40003, HTTP.Conflict)
+  EmailExist: new CError('Email already used', 40003, HTTP.Conflict),
+  AuthRequired: new CError('Please login first', 40004, HTTP.Unauthorized),
+  Forbidden: new CError('The resources you request is forbidden', 40005, HTTP.Forbidden),
+  JWTError: new CError('JWT Error', 40006, HTTP.Unauthorized)
 }
 
 export default E
