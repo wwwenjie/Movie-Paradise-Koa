@@ -10,7 +10,10 @@ const check = () => (
 ) => {
   const func = descriptor.value
   descriptor.value = function (...args) {
-    const auth: string = args[0].request.header.authorization
+    if (args[0].request.header.authorization === undefined) {
+      throw E.AuthRequired
+    }
+    const auth: string = args[0].request.header.authorization.trim().split(' ').pop()
     const url: string = args[0].request.url
     const uid: string = url.substring(url.lastIndexOf('/') + 1)
     if (uid !== getUid(auth)) {
@@ -27,7 +30,10 @@ const checkAdmin = () => (
 ) => {
   const func = descriptor.value
   descriptor.value = function (...args) {
-    const auth: string = args[0].request.header.authorization
+    if (args[0].request.header.authorization === undefined) {
+      throw E.AuthRequired
+    }
+    const auth: string = args[0].request.header.authorization.trim().split(' ').pop()
     // todo: get adminUid
     const adminUid = ['1', '2']
     if (!adminUid.includes(getUid(auth))) {
@@ -42,7 +48,7 @@ function getUid (auth: string): string {
   try {
     decoded = jwt.verify(auth, config.jwtSecret)
   } catch (e) {
-    throw new CError(E.JWTError.message, E.JWTError.code, E.JWTError.status, e.message)
+    throw new CError(`${E.JWTError.message}: ${String(e.message)}`, E.JWTError.code, E.JWTError.status)
   }
   return decoded.uid
 }

@@ -41,14 +41,14 @@ export default class UserController {
     ctx.body = await userService.register(ctx.request.body)
   }
 
-  @request('put', '/{uid}')
+  @request('patch', '/{uid}')
   @summary('update user')
   @path({
     uid: { type: 'string', required: true, description: 'user id' }
   })
   @check()
   async update (ctx): Promise<void> {
-    ctx.body = await userService.update(ctx.request.body)
+    ctx.body = await userService.update(ctx.params.uid, ctx.request.body)
   }
 
   @request('delete', '/{uid}')

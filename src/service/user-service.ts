@@ -3,14 +3,15 @@ import { getConnection } from 'typeorm'
 import { ObjectID } from 'mongodb'
 import E from '../error/ErrorEnum'
 import * as jwt from 'jsonwebtoken'
+import * as bcrypt from 'bcrypt'
 import config from '../config'
 
 interface UserService {
-  login(user: User): Promise<{ uid: ObjectID, token: string, name: string }>
+  login(user: User): Promise<string>
 
   register(user: User): Promise<void>
 
-  update(user: User): Promise<void>
+  update(uid: string, user: User): Promise<void>
 
   delete(uid: String): Promise<void>
 
@@ -22,17 +23,19 @@ interface UserService {
 export default class UserServiceImpl implements UserService {
   private readonly userRepository = getConnection('mongodb').getMongoRepository(User)
 
-  async login (user: User): Promise<{ uid: ObjectID, token: string, name: string }> {
+  async login (user: User): Promise<string> {
     const result = await this.userRepository.findOne({
-      email: user.email,
-      password: user.password
+      email: user.email
     })
-    if (result !== undefined) {
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    if (result !== undefined && await bcrypt.compare(user.password, result.password)) {
       // !permanent valid
-      const token = jwt.sign({
-        uid: result._id
+      return jwt.sign({
+        uid: result._id,
+        name: result.name,
+        desc: result.desc,
+        avatar: result.avatar
       }, config.jwtSecret)
-      return { uid: result._id, token: token, name: result.name }
     } else {
       throw E.AccountWrong
     }
@@ -50,12 +53,14 @@ export default class UserServiceImpl implements UserService {
       throw E.EmailExist
     }
     user.create_time = new Date()
+    user.password = await bcrypt.hash(user.password, 10)
     await this.userRepository.insertOne(user)
   }
 
-  // todo: try to use patch, there maybe some errors of mongodb when patch
-  async update (user: User): Promise<void> {
-    await this.userRepository.save(user)
+  async update (uid: string, user: User): Promise<void> {
+    await this.userRepository.updateOne({ _id: ObjectID(uid) }, {
+      $set: user
+    })
   }
 
   async delete (uid: String): Promise<void> {
