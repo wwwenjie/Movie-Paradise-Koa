@@ -75,6 +75,13 @@ export default class UserServiceImpl implements UserService {
     })
   }
 
+  // for test
+  async getByName (user: User): Promise<User> {
+    return await this.userRepository.findOne({
+      name: user.name
+    })
+  }
+
   async getUserList (limit: string = '8', offset: string = '0'): Promise<User[]> {
     return await this.userRepository.find({
       take: parseInt(limit),

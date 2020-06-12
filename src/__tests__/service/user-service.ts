@@ -10,7 +10,11 @@ test('user service', async () => {
   user.name = 'test'
   user.email = 'test'
   user.password = 'test'
-  await userService.register(user)
+  if (await userService.getByName(user) === undefined) {
+    await userService.register(user)
+    // change password to original, register will encrypt password
+    user.password = 'test'
+  }
   try {
     await userService.register(user)
   } catch (e) {
@@ -23,10 +27,10 @@ test('user service', async () => {
   } catch (e) {
     expect(e).toBe(E.EmailExist)
   }
-  const loginResult = await userService.login(user)
-  user._id = loginResult.uid
-  await userService.update(user)
-  const updatedUser = await userService.getByUid(user._id.toString())
+  const token = await userService.login(user)
+  const uid = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf8')).uid
+  await userService.update(uid, user)
+  const updatedUser = await userService.getByUid(uid)
   expect(updatedUser.name).toStrictEqual(user.name)
-  await userService.delete(loginResult.uid)
+  await userService.delete(uid)
 })
