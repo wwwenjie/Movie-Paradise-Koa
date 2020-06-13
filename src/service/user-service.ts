@@ -58,6 +58,21 @@ export default class UserServiceImpl implements UserService {
   }
 
   async update (uid: string, user: User): Promise<void> {
+    if (user.email !== undefined || user.password !== undefined) {
+      const res = await this.userRepository.findOne({
+        _id: ObjectID(uid)
+      })
+      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      if (!await bcrypt.compare(user.currentPassword, res.password)) {
+        throw E.AccountWrong
+      }
+      // @ts-ignore
+      delete user.currentPassword
+      if (user.password !== undefined) {
+        user.password = await bcrypt.hash(user.password, 10)
+      }
+    }
     await this.userRepository.updateOne({ _id: ObjectID(uid) }, {
       $set: user
     })
