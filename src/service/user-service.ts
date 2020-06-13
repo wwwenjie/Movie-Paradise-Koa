@@ -42,22 +42,17 @@ export default class UserServiceImpl implements UserService {
   }
 
   async register (user: User): Promise<void> {
-    if (await this.userRepository.findOne({
-      name: user.name
-    }) !== undefined) {
-      throw E.NameExist
-    }
-    if (await this.userRepository.findOne({
-      email: user.email
-    }) !== undefined) {
-      throw E.EmailExist
-    }
+    await this.checkIndex(user)
     user.create_time = new Date()
     user.password = await bcrypt.hash(user.password, 10)
     await this.userRepository.insertOne(user)
   }
 
   async update (uid: string, user: User): Promise<void> {
+    if (user.email !== undefined || user.name !== undefined) {
+      await this.checkIndex(user)
+    }
+    // check currentPassword
     if (user.email !== undefined || user.password !== undefined) {
       const res = await this.userRepository.findOne({
         _id: ObjectID(uid)
@@ -67,12 +62,12 @@ export default class UserServiceImpl implements UserService {
       if (!await bcrypt.compare(user.currentPassword, res.password)) {
         throw E.AccountWrong
       }
-      // @ts-ignore
-      delete user.currentPassword
       if (user.password !== undefined) {
         user.password = await bcrypt.hash(user.password, 10)
       }
     }
+    // @ts-ignore
+    delete user.currentPassword
     await this.userRepository.updateOne({ _id: ObjectID(uid) }, {
       $set: user
     })
@@ -102,5 +97,18 @@ export default class UserServiceImpl implements UserService {
       take: parseInt(limit),
       skip: parseInt(offset)
     })
+  }
+
+  async checkIndex (user): Promise<void> {
+    if (await this.userRepository.findOne({
+      name: user.name
+    }) !== undefined) {
+      throw E.NameExist
+    }
+    if (await this.userRepository.findOne({
+      email: user.email
+    }) !== undefined) {
+      throw E.EmailExist
+    }
   }
 }
