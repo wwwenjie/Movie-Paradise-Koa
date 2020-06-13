@@ -103,3 +103,25 @@ export const genreArraySchema = {
     properties: genreProperties
   }
 }
+
+export const commentProperties = {
+  _id: { type: 'string', example: '5ee443a395fdda3b403c5c6c' },
+  user_id: { type: 'string', example: '5ee443a395fdda3b403c5c6c' },
+  user_name: { type: 'string', example: 'Name' },
+  user_avatar: { type: 'string', example: 'https://xxxx.xxx.xxx' },
+  movie_id: { type: 'number', example: 25964071 },
+  title: { type: 'string', example: 'Title' },
+  summary: { type: 'string', example: 'Summary' },
+  rating: { type: 'number', example: 5 },
+  pid: { type: 'string', example: '5ee443a395fdda3b403c5c6c' },
+  create_time: { type: 'date', example: '2020-06-13T04:40:03.129Z' },
+  update_time: { type: 'date', example: '2020-06-13T04:40:03.129Z' }
+}
+
+export const commentArraySchema = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: commentProperties
+  }
+}

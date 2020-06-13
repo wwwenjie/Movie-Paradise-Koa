@@ -5,17 +5,20 @@ export default class Comment {
   @ObjectIdColumn()
   _id: ObjectID
 
-  @Column()
-  title: string
-
-  @Column()
-  user_id: string
+  @ObjectIdColumn()
+  user_id: ObjectID
 
   @Column()
   user_name: string
 
   @Column()
-  movie_id: string
+  user_avatar: string
+
+  @Column()
+  movie_id: number
+
+  @Column()
+  title: string
 
   @Column()
   summary: string
@@ -24,8 +27,8 @@ export default class Comment {
   rating: number
 
   // parent id
-  @Column()
-  pid: number
+  @ObjectIdColumn()
+  pid: ObjectID
 
   @CreateDateColumn()
   create_time: Date

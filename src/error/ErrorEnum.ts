@@ -20,7 +20,8 @@ const E = {
   EmailExist: new CError('Email already used', 40003, HTTP.Conflict),
   AuthRequired: new CError('Please login first', 40004, HTTP.Unauthorized),
   Forbidden: new CError('The resources you request is forbidden', 40005, HTTP.Forbidden),
-  JWTError: new CError('JWT Error', 40006, HTTP.Unauthorized)
+  JWTError: new CError('JWT Error', 40006, HTTP.Unauthorized),
+  MissParams: new CError('Miss params', 40007, HTTP.BadRequest)
 }
 
 export default E
