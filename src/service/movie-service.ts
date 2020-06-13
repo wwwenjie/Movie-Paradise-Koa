@@ -40,7 +40,7 @@ export default class MovieServiceImpl implements MovieService {
       order: {
         release: 'DESC'
       },
-      take: 500
+      take: 1000
     })
     const qualifiedMovie = movies.filter(movie => {
       if (!notNull(movie.rating)) {
@@ -61,16 +61,28 @@ export default class MovieServiceImpl implements MovieService {
   }
 
   async getNewest (limit: string = '8', offset: string = '0'): Promise<Movie[]> {
-    return Movie.find({
-      where: {
-        release: LessThan(new Date(Date.now()))
-      },
-      order: {
-        release: 'DESC'
-      },
-      take: parseInt(limit),
-      skip: parseInt(offset)
-    })
+    if (offset === '0') {
+      return getRandomItemFromArray(await Movie.find({
+        where: {
+          release: LessThan(new Date(Date.now()))
+        },
+        order: {
+          release: 'DESC'
+        },
+        take: parseInt(limit) * 3
+      }), parseInt(limit))
+    } else {
+      return Movie.find({
+        where: {
+          release: LessThan(new Date(Date.now()))
+        },
+        order: {
+          release: 'DESC'
+        },
+        take: parseInt(limit),
+        skip: parseInt(offset)
+      })
+    }
   }
 
   async getComing (limit: string = '8', offset: string = '0'): Promise<Movie[]> {
@@ -134,9 +146,16 @@ export default class MovieServiceImpl implements MovieService {
 
   async getByGenre (genre: string, limit: string = '8', offset: string = '0'): Promise<Movie[]> {
     // security
+    // if (offset !== '0') {
     const query = await Movie.query('SELECT movie_id as id FROM movie_genre WHERE ' +
-      'genre_id = (SELECT genre_id FROM genre WHERE name = ?) LIMIT ? OFFSET ?',
+        'genre_id = (SELECT genre_id FROM genre WHERE name = ?) ORDER BY movie_id DESC LIMIT ? OFFSET ?',
     [genre, parseInt(limit), parseInt(offset)])
+    // } else {
+    //   query = await Movie.query('SELECT movie_id as id FROM movie_genre WHERE ' +
+    //     'genre_id = (SELECT genre_id FROM genre WHERE name = ?) ORDER BY movie_id DESC LIMIT ?',
+    //   [genre, parseInt('1000')])
+    //   query = getRandomItemFromArray(query, parseInt(limit))
+    // }
     const ids = query.map(row => {
       return row.id
     })
