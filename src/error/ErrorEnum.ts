@@ -21,7 +21,8 @@ const E = {
   AuthRequired: new CError('Please login first', 40004, HTTP.Unauthorized),
   Forbidden: new CError('The resources you request is forbidden', 40005, HTTP.Forbidden),
   JWTError: new CError('JWT Error', 40006, HTTP.Unauthorized),
-  MissParams: new CError('Miss params', 40007, HTTP.BadRequest)
+  MissParams: new CError('Miss params', 40007, HTTP.BadRequest),
+  OSSPutError: new CError('Fail to upload this to our server', 50000, HTTP.InternalServerError)
 }
 
 export default E

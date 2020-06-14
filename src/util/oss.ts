@@ -3,6 +3,7 @@ import * as request from 'superagent'
 import * as fs from 'fs'
 import { ossLogger, httpLogger } from '../core/log4js'
 import config from '../config'
+import E from '../error/ErrorEnum'
 
 export default class OSS {
   private static readonly client = new Oss(config.ossConfig)
@@ -26,6 +27,16 @@ export default class OSS {
       logger.info('put oss success:', id)
     } catch (err) {
       logger.error('error: ', err)
+      throw E.OSSPutError
+    }
+  }
+
+  static async putAvatar (fileName: string, localPath: string): Promise<any> {
+    try {
+      return await this.client.put(`avatar/${fileName}`, localPath)
+    } catch (err) {
+      ossLogger.error('error: ', err)
+      throw E.OSSPutError
     }
   }
 }

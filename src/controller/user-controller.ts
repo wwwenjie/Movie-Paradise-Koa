@@ -1,6 +1,6 @@
 import UserServiceImpl from '../service/user-service'
 import { body, path, prefix, query, request, responses, summary, tagsAll } from 'koa-swagger-decorator/dist'
-import { check, checkAdmin } from '../core/jwt'
+import { check, checkAdmin, getUid } from '../core/jwt'
 import { userProperties } from './swagger-definition'
 
 const userService = new UserServiceImpl()
@@ -60,6 +60,18 @@ export default class UserController {
   @check()
   async delete (ctx): Promise<void> {
     ctx.body = await userService.delete(ctx.params.uid)
+  }
+
+  @request('post', '/{uid}/avatar')
+  @summary('upload user avatar to oss (only for users themselves)')
+  @path({
+    uid: { type: 'string', required: true, description: 'user id' }
+  })
+  async uploadAvatar (ctx): Promise<void> {
+    const file = ctx.request.files.avatar
+    // extend name is unnecessary
+    file.name = getUid(ctx.request.header.authorization)
+    ctx.body = await userService.uploadAvatar(file)
   }
 
   @request('get', '/{uid}')

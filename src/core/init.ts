@@ -6,6 +6,7 @@ import { SwaggerRouter } from 'koa-swagger-decorator'
 import config from '../config'
 import CError from '../error/CError'
 import logger from './log4js'
+import * as koaBody from 'koa-body'
 
 export default class InitManager {
   private static app: any
@@ -15,6 +16,7 @@ export default class InitManager {
       await InitManager.initLoadErrorHandler()
       await InitManager.initLoadDatabase()
       await InitManager.initLoadCORS()
+      await InitManager.initLoadFileSupport()
       await InitManager.initLoadRouters()
       InitManager.app.listen(config.port, () => {
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -53,19 +55,6 @@ export default class InitManager {
     }
   }
 
-  private static async initLoadRouters (): Promise<void> {
-    const router = new SwaggerRouter()
-    router.swagger({
-      title: 'Movie Paradise API V1 Server',
-      description: 'Movie Paradise API DOC',
-      version: '1.0.0'
-    })
-    router.mapDir(path.resolve(__dirname, '../controller/'))
-    // @ts-ignore
-    InitManager.app.use(router.routes())
-    console.log('Routes loaded.')
-  }
-
   private static async initLoadCORS (): Promise<void> {
     InitManager.app.use(cors({
       origin: ctx => {
@@ -77,5 +66,29 @@ export default class InitManager {
       keepHeadersOnError: false
     }
     ))
+  }
+
+  private static async initLoadFileSupport (): Promise<void> {
+    InitManager.app.use(koaBody({
+      multipart: true,
+      formidable: {
+        keepExtensions: true,
+        maxFileSize: 10 * 1024 * 1024,
+        uploadDir: config.ossLocalPath
+      }
+    }))
+  }
+
+  private static async initLoadRouters (): Promise<void> {
+    const router = new SwaggerRouter()
+    router.swagger({
+      title: 'Movie Paradise API V1 Server',
+      description: 'Movie Paradise API DOC',
+      version: '1.0.0'
+    })
+    router.mapDir(path.resolve(__dirname, '../controller/'))
+    // @ts-ignore
+    InitManager.app.use(router.routes())
+    console.log('Routes loaded.')
   }
 }

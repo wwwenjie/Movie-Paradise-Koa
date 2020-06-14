@@ -5,6 +5,8 @@ import E from '../error/ErrorEnum'
 import * as jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import config from '../config'
+import OSS from '../util/oss'
+import * as fs from 'fs'
 
 interface UserService {
   login(user: User): Promise<User>
@@ -14,6 +16,8 @@ interface UserService {
   update(uid: string, user: User): Promise<void>
 
   delete(uid: String): Promise<void>
+
+  uploadAvatar(file: File): Promise<string>
 
   getByUid(uid: String): Promise<User>
 
@@ -82,6 +86,19 @@ export default class UserServiceImpl implements UserService {
     await this.userRepository.deleteOne({
       _id: ObjectID(uid)
     })
+  }
+
+  async uploadAvatar (file: File): Promise<string> {
+    // @ts-ignore
+    const path: string = file.path
+    const res = await OSS.putAvatar(file.name, path)
+    const user = new User()
+    user.avatar = res.url
+    await this.update(file.name, user)
+    fs.unlink(path, (err) => {
+      console.log(err)
+    })
+    return res.url
   }
 
   async getByUid (uid: String): Promise<User> {
