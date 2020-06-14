@@ -27,10 +27,6 @@ export default class UserController {
     }
   })
   async login (ctx): Promise<void> {
-    console.log({
-      ...userProperties,
-      token: 'token'
-    })
     ctx.body = await userService.login(ctx.request.body)
   }
 

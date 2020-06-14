@@ -1,7 +1,7 @@
 import { body, path, query, request, responses, summary, tagsAll } from 'koa-swagger-decorator/dist'
 import { commentArraySchema, commentProperties } from './swagger-definition'
 import CommentServiceImpl from '../service/comment-serviece'
-import { checkAdmin } from '../core/jwt'
+import { checkAdmin, getUid } from '../core/jwt'
 
 const commentService = new CommentServiceImpl()
 
@@ -11,6 +11,8 @@ export default class GenreController {
   @body(commentProperties)
   @summary('add a comment')
   async creatComment (ctx): Promise<void> {
+    // check token valid
+    getUid(ctx.request.header.authorization)
     ctx.body = await commentService.creat(ctx.request.body)
   }
 
