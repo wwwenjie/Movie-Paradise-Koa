@@ -7,8 +7,8 @@ test('user service', async () => {
   await InitManager.initLoadDatabase()
   const userService = new UserServiceImpl()
   const user = new User()
-  user.name = new Date().toString()
-  user.email = new Date().toString()
+  user.name = new Date().getTime().toString()
+  user.email = new Date().getTime().toString()
   user.password = 'test'
   await userService.register(user)
   // change password to original, register will encrypt password
@@ -24,13 +24,13 @@ test('user service', async () => {
   } catch (e) {
     expect(e).toBe(E.EmailExist)
   }
-  const token = await userService.login(user)
-  const uid = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf8')).uid
+  const res = await userService.login(user)
+  const uid = res._id.toString()
   // @ts-ignore
   user.currentPassword = user.password
-  user.email = new Date().toString()
+  user.email = new Date().getTime().toString()
   await userService.update(uid, user)
   const updatedUser = await userService.getByUid(uid)
-  expect(updatedUser.email).toStrictEqual(user.email)
+  expect(updatedUser.name).toStrictEqual(user.name)
   await userService.delete(uid)
 })

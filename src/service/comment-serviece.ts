@@ -15,7 +15,6 @@ export default class CommentServiceImpl implements CommentService {
   private readonly commentRepository = getConnection('mongodb').getMongoRepository(Comment)
 
   async creat (comment: Comment): Promise<void> {
-    comment.user_id = ObjectID(comment.user_id)
     comment.create_time = new Date()
     comment.update_time = comment.create_time
     await this.commentRepository.insertOne(comment)

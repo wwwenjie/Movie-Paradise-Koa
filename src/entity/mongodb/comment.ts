@@ -5,8 +5,8 @@ export default class Comment {
   @ObjectIdColumn()
   _id: ObjectID
 
-  @ObjectIdColumn()
-  user_id: ObjectID
+  @Column()
+  user_id: string
 
   @Column()
   user_name: string
@@ -27,8 +27,8 @@ export default class Comment {
   rating: number
 
   // parent id
-  @ObjectIdColumn()
-  pid: ObjectID
+  @Column()
+  pid: string
 
   @Column()
   create_time: Date
