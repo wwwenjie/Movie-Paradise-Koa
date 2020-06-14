@@ -104,6 +104,28 @@ export const genreArraySchema = {
   }
 }
 
+export const userProperties = {
+  _id: { type: 'string', example: '5ee443a395fdda3b403c5c6c' },
+  email: { type: 'string', example: '132@email.com' },
+  name: { type: 'string', example: 'Name' },
+  password: { type: 'string', example: 'Password' },
+  desc: { type: 'string', example: 'Some introduction' },
+  avatar: { type: 'string', example: 'https://xxxx.xxx.xxx' },
+  interests: { type: 'object', example: ['Comedy', 'Romance'] },
+  list: { type: 'object', example: [1291546, 1291547] },
+  like: { type: 'object', example: [1291543, 1291543] },
+  watched: { type: 'object', example: [1291543, 1291543] },
+  create_time: { type: 'date', example: '2020-06-13T04:40:03.129Z' }
+}
+
+export const userArraySchema = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: userProperties
+  }
+}
+
 export const commentProperties = {
   _id: { type: 'string', example: '5ee443a395fdda3b403c5c6c' },
   user_id: { type: 'string', example: '5ee443a395fdda3b403c5c6c' },

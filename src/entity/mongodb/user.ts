@@ -1,4 +1,4 @@
-import { Entity, ObjectID, ObjectIdColumn, Column, CreateDateColumn, Index } from 'typeorm'
+import { Entity, ObjectID, ObjectIdColumn, Column, Index } from 'typeorm'
 
 @Entity()
 export default class User {
@@ -34,7 +34,6 @@ export default class User {
   @Column()
   watched: [number]
 
-  // not working in mongo
-  @CreateDateColumn()
+  @Column()
   create_time: Date
 }

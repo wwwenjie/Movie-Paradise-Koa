@@ -1,6 +1,7 @@
 import UserServiceImpl from '../service/user-service'
 import { body, path, prefix, query, request, responses, summary, tagsAll } from 'koa-swagger-decorator/dist'
 import { check, checkAdmin } from '../core/jwt'
+import { userProperties } from './swagger-definition'
 
 const userService = new UserServiceImpl()
 
@@ -15,18 +16,21 @@ export default class UserController {
   })
   @responses({
     200: {
-      description: 'uid and token',
+      description: 'user and token',
       schema: {
         type: 'object',
         properties: {
-          uid: { type: 'string', example: '5edf5ade1c0ca52410508138' },
-          token: { type: 'string', example: 'eyJpc3MiOiJKb2huI.eyJpc3MiOiJ.Kb2huIFd1IEp' },
-          name: { type: 'string', example: 'admin' }
+          token: 'token',
+          ...userProperties
         }
       }
     }
   })
   async login (ctx): Promise<void> {
+    console.log({
+      ...userProperties,
+      token: 'token'
+    })
     ctx.body = await userService.login(ctx.request.body)
   }
 
@@ -42,17 +46,18 @@ export default class UserController {
   }
 
   @request('patch', '/{uid}')
-  @summary('update user')
+  @summary('update user (only for users themselves)')
   @path({
     uid: { type: 'string', required: true, description: 'user id' }
   })
+  @body(userProperties)
   @check()
   async update (ctx): Promise<void> {
     ctx.body = await userService.update(ctx.params.uid, ctx.request.body)
   }
 
   @request('delete', '/{uid}')
-  @summary('delete user')
+  @summary('delete user (only for users themselves)')
   @path({
     uid: { type: 'string', required: true, description: 'user id' }
   })
@@ -62,11 +67,11 @@ export default class UserController {
   }
 
   @request('get', '/{uid}')
-  @summary('get user by user id')
+  @summary('get user by user id (public, no password and email)')
   @path({
     uid: { type: 'string', required: true, description: 'user id' }
   })
-  @check()
+  @responses({ 200: { description: 'user object', schema: { type: 'object', properties: userProperties } } })
   async findByUid (ctx): Promise<void> {
     ctx.body = await userService.getByUid(ctx.params.uid)
   }

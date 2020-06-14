@@ -1,4 +1,4 @@
-import { Entity, ObjectID, ObjectIdColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, ObjectID, ObjectIdColumn, Column } from 'typeorm'
 
 @Entity()
 export default class Comment {
@@ -30,9 +30,9 @@ export default class Comment {
   @ObjectIdColumn()
   pid: ObjectID
 
-  @CreateDateColumn()
+  @Column()
   create_time: Date
 
-  @UpdateDateColumn()
+  @Column()
   update_time: Date
 }

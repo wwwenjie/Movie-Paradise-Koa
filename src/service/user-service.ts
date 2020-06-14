@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt'
 import config from '../config'
 
 interface UserService {
-  login(user: User): Promise<string>
+  login(user: User): Promise<User>
 
   register(user: User): Promise<void>
 
@@ -23,19 +23,24 @@ interface UserService {
 export default class UserServiceImpl implements UserService {
   private readonly userRepository = getConnection('mongodb').getMongoRepository(User)
 
-  async login (user: User): Promise<string> {
+  async login (user: User): Promise<User> {
     const result = await this.userRepository.findOne({
       email: user.email
     })
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (result !== undefined && await bcrypt.compare(user.password, result.password)) {
       // !permanent valid
-      return jwt.sign({
-        uid: result._id,
-        name: result.name,
-        desc: result.desc,
-        avatar: result.avatar
-      }, config.jwtSecret)
+      const token = jwt.sign({
+        uid: result._id
+      },
+      config.jwtSecret,
+      {
+        issuer: 'https://github.com/wwwenjie/Movie-Paradise'
+      })
+      delete result.password
+      // @ts-ignore
+      result.token = token
+      return result
     } else {
       throw E.AccountWrong
     }
@@ -80,16 +85,13 @@ export default class UserServiceImpl implements UserService {
   }
 
   async getByUid (uid: String): Promise<User> {
-    return await this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       _id: ObjectID(uid)
     })
-  }
-
-  // for test
-  async getByName (user: User): Promise<User> {
-    return await this.userRepository.findOne({
-      name: user.name
-    })
+    // Obviously, findOne does not provide a exclusion option
+    delete user.email
+    delete user.password
+    return user
   }
 
   async getUserList (limit: string = '8', offset: string = '0'): Promise<User[]> {
