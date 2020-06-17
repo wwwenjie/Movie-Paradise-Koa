@@ -4,9 +4,9 @@ import { improvementLogger as logger } from '../core/log4js'
 import * as request from 'superagent'
 
 interface ImprovementService {
-  patchPoster(id: number): Promise<void>
-  patchBackdrops(path: string): Promise<object|null>
-  patchTrailers(id: number): Promise<object|null>
+  patchPoster: (id: number) => Promise<void>
+  patchBackdrops: (path: string) => Promise<object|null>
+  patchTrailers: (id: number) => Promise<object|null>
 }
 
 export default class ImprovementServiceImpl implements ImprovementService {

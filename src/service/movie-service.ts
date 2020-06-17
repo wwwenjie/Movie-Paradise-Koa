@@ -5,29 +5,29 @@ import { LessThan, Like, MoreThan } from 'typeorm'
 import { getRandomItemFromArray, notNull } from '../util'
 
 interface MovieService {
-  getToday(): Promise<Movie>
+  getToday: () => Promise<Movie>
 
-  getNewest(limit: string, offset: string): Promise<Movie[]>
+  getNewest: (limit: string, offset: string) => Promise<Movie[]>
 
-  getComing(limit: string, offset: string): Promise<Movie[]>
+  getComing: (limit: string, offset: string) => Promise<Movie[]>
 
-  search(keyword: string): Promise<Movie[]>
+  search: (keyword: string) => Promise<Movie[]>
 
-  getByPath(path: string): Promise<Movie>
+  getByPath: (path: string) => Promise<Movie>
 
-  getByIds(ids: string): Promise<Movie[]>
+  getByIds: (ids: string) => Promise<Movie[]>
 
-  getByGenre(genre: string, limit: string, offset: string): Promise<Movie[]>
+  getByGenre: (genre: string, limit: string, offset: string) => Promise<Movie[]>
 
-  getByActor(actor: string, limit: string, offset: string): Promise<Movie[]>
+  getByActor: (actor: string, limit: string, offset: string) => Promise<Movie[]>
 
-  update(movie: Movie): Promise<void | Error>
+  update: (movie: Movie) => Promise<void>
 
-  create(movie: Movie): Promise<void | Error>
+  create: (movie: Movie) => Promise<void>
 
-  handelGenre(movie: Movie): Promise<Movie>
+  handelGenre: (movie: Movie) => Promise<Movie>
 
-  handelActor(movie: Movie): Promise<Movie>
+  handelActor: (movie: Movie) => Promise<Movie>
 }
 
 export default class MovieServiceImpl implements MovieService {
@@ -164,7 +164,7 @@ export default class MovieServiceImpl implements MovieService {
       .getMany()
   }
 
-  async create (movie: Movie): Promise<void | Error> {
+  async create (movie: Movie): Promise<void> {
     if (await Movie.findOne({ _id: movie._id }) !== undefined) {
       throw Error('movie existed')
     }
@@ -172,7 +172,7 @@ export default class MovieServiceImpl implements MovieService {
   }
 
   // todo: transaction
-  async update (movie: Movie): Promise<void | Error> {
+  async update (movie: Movie): Promise<void> {
     this.setValues(movie)
     movie = await this.handelGenre(movie)
     movie = await this.handelActor(movie)

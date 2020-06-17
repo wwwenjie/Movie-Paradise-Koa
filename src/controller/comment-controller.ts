@@ -6,7 +6,7 @@ import { checkAdmin, getUid } from '../core/jwt'
 const commentService = new CommentServiceImpl()
 
 @tagsAll('Comment Controller')
-export default class GenreController {
+export default class CommentController {
   @request('post', '/comments')
   @body(commentProperties)
   @summary('add a comment')

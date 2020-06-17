@@ -9,19 +9,19 @@ import OSS from '../util/oss'
 import * as fs from 'fs'
 
 interface UserService {
-  login(user: User): Promise<User>
+  login: (user: User) => Promise<User>
 
-  register(user: User): Promise<void>
+  register: (user: User) => Promise<void>
 
-  update(uid: string, user: User): Promise<void>
+  update: (uid: string, user: User) => Promise<void>
 
-  delete(uid: String): Promise<void>
+  delete: (uid: String) => Promise<void>
 
-  uploadAvatar(file: File): Promise<string>
+  uploadAvatar: (file: File) => Promise<string>
 
-  getByUid(uid: String): Promise<User>
+  getByUid: (uid: String) => Promise<User>
 
-  getUserList(limit: string, offset: string): Promise<User[]>
+  getUserList: (limit: string, offset: string) => Promise<User[]>
 }
 
 export default class UserServiceImpl implements UserService {
@@ -42,7 +42,7 @@ export default class UserServiceImpl implements UserService {
         issuer: 'https://github.com/wwwenjie/Movie-Paradise'
       })
       delete result.password
-      // @ts-ignore
+      // @ts-expect-error
       result.token = token
       return result
     } else {
@@ -66,7 +66,7 @@ export default class UserServiceImpl implements UserService {
       const res = await this.userRepository.findOne({
         _id: ObjectID(uid)
       })
-      // @ts-ignore
+      // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (!await bcrypt.compare(user.currentPassword, res.password)) {
         throw E.AccountWrong
@@ -75,7 +75,7 @@ export default class UserServiceImpl implements UserService {
         user.password = await bcrypt.hash(user.password, 10)
       }
     }
-    // @ts-ignore
+    // @ts-expect-error
     delete user.currentPassword
     await this.userRepository.updateOne({ _id: ObjectID(uid) }, {
       $set: user
@@ -89,7 +89,7 @@ export default class UserServiceImpl implements UserService {
   }
 
   async uploadAvatar (file: File): Promise<string> {
-    // @ts-ignore
+    // @ts-expect-error
     const path: string = file.path
     const res = await OSS.putAvatar(file.name, path)
     const user = new User()

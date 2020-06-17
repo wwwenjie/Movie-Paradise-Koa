@@ -3,12 +3,12 @@ import { ObjectID } from 'mongodb'
 import { getConnection } from 'typeorm'
 
 interface CommentService {
-  creat(comment: Comment): Promise<void>
-  update(id: string): Promise<void>
-  delete(id: string): Promise<void>
-  getCommentList (limit: string, offset: string): Promise<Comment[]>
-  getByMovieId(movieId: string, limit: string, offset: string): Promise<Comment[]>
-  getByUserId(userId: string, limit: string, offset: string): Promise<Comment[]>
+  creat: (comment: Comment) => Promise<void>
+  update: (id: string) => Promise<void>
+  delete: (id: string) => Promise<void>
+  getCommentList: (limit: string, offset: string) => Promise<Comment[]>
+  getByMovieId: (movieId: string, limit: string, offset: string) => Promise<Comment[]>
+  getByUserId: (userId: string, limit: string, offset: string) => Promise<Comment[]>
 }
 
 export default class CommentServiceImpl implements CommentService {
@@ -56,7 +56,7 @@ export default class CommentServiceImpl implements CommentService {
   async getByUserId (userId: string, limit: string, offset: string): Promise<Comment[]> {
     return this.commentRepository.find({
       where: {
-        movie_id: ObjectID(userId)
+        user_id: userId
       },
       order: {
         update_time: 'DESC'

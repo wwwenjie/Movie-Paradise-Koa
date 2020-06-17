@@ -6,6 +6,19 @@ export default class Comment {
   _id: ObjectID
 
   @Column()
+  title: string
+
+  @Column()
+  summary: string
+
+  @Column()
+  rating: number
+
+  // parent id
+  @Column()
+  pid: string
+
+  @Column()
   user_id: string
 
   @Column()
@@ -18,17 +31,10 @@ export default class Comment {
   movie_id: number
 
   @Column()
-  title: string
+  movie_title: number
 
   @Column()
-  summary: string
-
-  @Column()
-  rating: number
-
-  // parent id
-  @Column()
-  pid: string
+  movie_title_en: number
 
   @Column()
   create_time: Date
