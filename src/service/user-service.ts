@@ -54,6 +54,9 @@ export default class UserServiceImpl implements UserService {
   async register (user: User): Promise<void> {
     await this.checkIndex(user)
     user.create_time = new Date()
+    user.list = []
+    user.like = []
+    user.watched = []
     user.password = await bcrypt.hash(user.password, 10)
     await this.userRepository.insertOne(user)
   }

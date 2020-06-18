@@ -26,13 +26,13 @@ export default class User {
   interests: [string]
 
   @Column()
-  list: [number]
+  list: [number?]
 
   @Column()
-  like: [number]
+  like: [number?]
 
   @Column()
-  watched: [number]
+  watched: [number?]
 
   @Column()
   create_time: Date
