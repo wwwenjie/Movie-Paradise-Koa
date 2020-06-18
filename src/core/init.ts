@@ -35,7 +35,12 @@ export default class InitManager {
         await next()
       } catch (error) {
         if (error instanceof CError) {
-          ctx.body = error
+          error.setMessage(ctx.request)
+          ctx.body = {
+            message: error.message,
+            code: error.code,
+            detail: error.detail
+          }
           ctx.status = error.status
         } else {
           logger.error(error)
@@ -87,7 +92,7 @@ export default class InitManager {
       version: '1.0.0'
     })
     router.mapDir(path.resolve(__dirname, '../controller/'))
-    // @ts-ignore
+    // @ts-expect-error
     InitManager.app.use(router.routes())
     console.log('Routes loaded.')
   }

@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt'
 import config from '../config'
 import OSS from '../util/oss'
 import * as fs from 'fs'
+import logger from '../core/log4js'
 
 interface UserService {
   login: (user: User) => Promise<User>
@@ -96,7 +97,9 @@ export default class UserServiceImpl implements UserService {
     user.avatar = res.url
     await this.update(file.name, user)
     fs.unlink(path, (err) => {
-      console.log(err)
+      if (err !== null) {
+        logger.error(err)
+      }
     })
     return res.url
   }

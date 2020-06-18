@@ -27,7 +27,8 @@
     "accessKeyId": "",
     "accessKeySecret": "",
     "bucket": "",
-    "region": ""
+    "region": "",
+    "secure": true
   },
   "ossLocalPath": "",
   "jwtSecret": "secret"
