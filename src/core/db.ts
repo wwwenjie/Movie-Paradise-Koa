@@ -16,6 +16,7 @@ export default createConnections([{
   logging: logging
 }, {
   name: 'mongodb',
+  useUnifiedTopology: true,
   type: config.mongodb.type,
   host: config.mongodb.host,
   port: config.mongodb.port,

@@ -108,6 +108,9 @@ export default class UserServiceImpl implements UserService {
     const user = await this.userRepository.findOne({
       _id: ObjectID(uid)
     })
+    if (user === undefined) {
+      throw E.UserNotFound
+    }
     // Obviously, findOne does not provide a exclusion option
     delete user.email
     delete user.password

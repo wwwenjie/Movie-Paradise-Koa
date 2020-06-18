@@ -50,6 +50,11 @@ const E = {
     'zh-CN': '缺少请求参数'
   }, 40007, HTTP.BadRequest),
 
+  UserNotFound: new CError({
+    'en-US': 'Can not find this user',
+    'zh-CN': '找不到此用户'
+  }, 40007, HTTP.NotFound),
+
   OSSPutError: new CError({
     'en-US': 'Fail to upload this to our server',
     'zh-CN': '无法上传此文件至我们的服务器'
