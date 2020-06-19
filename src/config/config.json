@@ -8,7 +8,7 @@
     "password": "root",
     "database": "database name",
     "logging": false,
-    "forceSync": false
+    "sync": false
   },
   "mongodb": {
     "type": "mongodb",
@@ -20,6 +20,7 @@
   "cors": {
     "allowOrigin": [
       "https://movieparadise.netlify.app",
+      "https://movie-paradise-1256033731.cos-website.ap-chengdu.myqcloud.com",
       "http://localhost:8080"
     ]
   },
@@ -30,6 +31,5 @@
     "region": "",
     "secure": true
   },
-  "ossLocalPath": "",
   "jwtSecret": "secret"
 }

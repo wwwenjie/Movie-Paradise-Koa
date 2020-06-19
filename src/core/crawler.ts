@@ -124,7 +124,7 @@ class GetMovieFromAPI {
         ids.delete(movie._id)
       })
       const writerStream = fs.createWriteStream(path.resolve(__dirname, './invalid.log'), { flags: 'a+' })
-      writerStream.setDefaultEncoding('UTF8')
+      writerStream.setDefaultEncoding('utf8')
       ids.forEach(id => {
         this.invalid.add(parseInt(id))
         writerStream.write(id + '\n')

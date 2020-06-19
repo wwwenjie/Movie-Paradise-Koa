@@ -95,16 +95,18 @@ export default class UserServiceImpl implements UserService {
   async uploadAvatar (file: File): Promise<string> {
     // @ts-expect-error
     const path: string = file.path
-    const res = await OSS.putAvatar(file.name, path)
+    // file.name = user._id
+    const url = await OSS.putAvatar(file.name, path)
+    // todo: if user change avatar, the avatar needn't update
     const user = new User()
-    user.avatar = res.url
+    user.avatar = url
     await this.update(file.name, user)
     fs.unlink(path, (err) => {
       if (err !== null) {
         logger.error(err)
       }
     })
-    return res.url
+    return url
   }
 
   async getByUid (uid: String): Promise<User> {

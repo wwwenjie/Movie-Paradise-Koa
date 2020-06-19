@@ -11,7 +11,7 @@ interface ImprovementService {
 
 export default class ImprovementServiceImpl implements ImprovementService {
   async patchPoster (id: number): Promise<void> {
-    await OSS.putPoster(id, logger)
+    await OSS.putPoster(id)
   }
 
   async patchBackdrops (path: string): Promise<object|null> {

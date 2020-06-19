@@ -79,7 +79,7 @@ export default class InitManager {
       formidable: {
         keepExtensions: true,
         maxFileSize: 10 * 1024 * 1024,
-        uploadDir: config.ossLocalPath
+        uploadDir: path.resolve(__dirname, '../../static/')
       }
     }))
   }
