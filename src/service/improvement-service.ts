@@ -23,7 +23,6 @@ export default class ImprovementServiceImpl implements ImprovementService {
       backdrops: backdrops
     })
     if (result.raw.affectedRows === 1) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       logger.info(`added backdrops: path:${path} length:${backdrops.length}`)
       return res.body.backdrops
     } else {
@@ -42,7 +41,6 @@ export default class ImprovementServiceImpl implements ImprovementService {
         trailers: res.body
       })
       if (result.raw.affectedRows === 1) {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         logger.info(`added trailer: id:${id} length:${res.body.length}`)
         return res.body
       } else {

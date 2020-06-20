@@ -50,7 +50,7 @@ function getUid (auth: string): string {
   try {
     decoded = jwt.verify(token, config.jwtSecret)
   } catch (e) {
-    throw new CError(E.JWTError.locale, E.JWTError.code, E.JWTError.status, e.message)
+    throw new CError(E.AuthError.locale, E.AuthError.code, E.AuthError.status, e.message)
   }
   return decoded.uid
 }

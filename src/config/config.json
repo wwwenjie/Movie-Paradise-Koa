@@ -31,5 +31,15 @@
     "region": "",
     "secure": true
   },
-  "jwtSecret": "secret"
+  "jwtSecret": "secret",
+  "smtp": {
+    "from": "",
+    "host": "",
+    "port": 465,
+    "secure": true,
+    "auth": {
+      "user": "",
+      "pass": ""
+    }
+  }
 }

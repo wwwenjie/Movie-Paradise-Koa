@@ -19,9 +19,7 @@ export default class InitManager {
       await InitManager.initLoadFileSupport()
       await InitManager.initLoadRouters()
       InitManager.app.listen(config.port, () => {
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         console.log(`listen at http://localhost:${config.port}`)
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         console.log(`swagger at http://localhost:${config.port}/swagger-html`)
       })
     })().catch(err => {

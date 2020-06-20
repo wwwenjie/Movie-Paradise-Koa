@@ -752,6 +752,13 @@
   resolved "https://registry.npm.taobao.org/@types/node/download/@types/node-14.0.13.tgz#ee1128e881b874c371374c1f72201893616417c9"
   integrity sha1-7hEo6IG4dMNxN0wfciAYk2FkF8k=
 
+"@types/nodemailer@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.npm.taobao.org/@types/nodemailer/download/@types/nodemailer-6.4.0.tgz?cache=0&sync_timestamp=1589545288060&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Fnodemailer%2Fdownload%2F%40types%2Fnodemailer-6.4.0.tgz#d8c039be3ed685c4719a026455555be82c124b74"
+  integrity sha1-2MA5vj7WhcRxmgJkVVVb6CwSS3Q=
+  dependencies:
+    "@types/node" "*"
+
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
   resolved "https://registry.npm.taobao.org/@types/normalize-package-data/download/@types/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
@@ -4590,6 +4597,11 @@ node-pre-gyp@0.15.0:
     rimraf "^2.6.1"
     semver "^5.3.0"
     tar "^4.4.2"
+
+nodemailer@^6.4.10:
+  version "6.4.10"
+  resolved "https://registry.npm.taobao.org/nodemailer/download/nodemailer-6.4.10.tgz#f4c8dc7991c57f41fd081bef224ef01f7065143d"
+  integrity sha1-9MjceZHFf0H9CBvvIk7wH3BlFD0=
 
 nopt@^4.0.1:
   version "4.0.3"

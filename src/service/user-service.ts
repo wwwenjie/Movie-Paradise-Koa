@@ -16,11 +16,11 @@ interface UserService {
 
   update: (uid: string, user: User) => Promise<void>
 
-  delete: (uid: String) => Promise<void>
+  delete: (uid: string, password: string) => Promise<void>
 
   uploadAvatar: (file: File) => Promise<string>
 
-  getByUid: (uid: String) => Promise<User>
+  getByUid: (uid: string) => Promise<User>
 
   getUserList: (limit: string, offset: string) => Promise<User[]>
 }
@@ -71,7 +71,6 @@ export default class UserServiceImpl implements UserService {
         _id: ObjectID(uid)
       })
       // @ts-expect-error
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (!await bcrypt.compare(user.currentPassword, res.password)) {
         throw E.AccountWrong
       }
@@ -86,10 +85,17 @@ export default class UserServiceImpl implements UserService {
     })
   }
 
-  async delete (uid: String): Promise<void> {
-    await this.userRepository.deleteOne({
+  async delete (uid: string, password: string): Promise<void> {
+    const user = await this.userRepository.findOne({
       _id: ObjectID(uid)
     })
+    if (await bcrypt.compare(password, user.password)) {
+      await this.userRepository.deleteOne({
+        _id: ObjectID(uid)
+      })
+    } else {
+      throw E.AuthError
+    }
   }
 
   async uploadAvatar (file: File): Promise<string> {
@@ -109,7 +115,7 @@ export default class UserServiceImpl implements UserService {
     return url
   }
 
-  async getByUid (uid: String): Promise<User> {
+  async getByUid (uid: string): Promise<User> {
     const user = await this.userRepository.findOne({
       _id: ObjectID(uid)
     })

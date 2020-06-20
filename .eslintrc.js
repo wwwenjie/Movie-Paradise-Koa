@@ -12,6 +12,7 @@ module.exports = {
     },
     rules: {
         '@typescript-eslint/no-extraneous-class':'off',
-        '@typescript-eslint/return-await': 'off'
+        '@typescript-eslint/return-await': 'off',
+        '@typescript-eslint/restrict-template-expressions':'off'
     }
 };

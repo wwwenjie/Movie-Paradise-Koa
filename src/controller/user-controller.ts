@@ -57,9 +57,11 @@ export default class UserController {
   @path({
     uid: { type: 'string', required: true, description: 'user id' }
   })
-  @check()
+  @query({
+    password: { type: 'string', required: true, description: 'user password' }
+  })
   async delete (ctx): Promise<void> {
-    ctx.body = await userService.delete(ctx.params.uid)
+    ctx.body = await userService.delete(ctx.params.uid, ctx.request.query.password)
   }
 
   @request('post', '/{uid}/avatar')

@@ -40,7 +40,7 @@ const E = {
     'zh-CN': '您请求的资源是被禁止的'
   }, 40005, HTTP.Forbidden),
 
-  JWTError: new CError({
+  AuthError: new CError({
     'en-US': 'Authentication failed',
     'zh-CN': '身份验证失败'
   }, 40006, HTTP.Unauthorized),
@@ -58,7 +58,12 @@ const E = {
   OSSPutError: new CError({
     'en-US': 'Fail to upload this to our server',
     'zh-CN': '无法上传此文件至我们的服务器'
-  }, 50000, HTTP.InternalServerError)
+  }, 50000, HTTP.InternalServerError),
+
+  MailFailToSend: new CError({
+    'en-US': 'Fail to send email, please contact admin to check',
+    'zh-CN': '无法发送邮件，请联系管理员检查'
+  }, 50001, HTTP.InternalServerError)
 }
 
 export default E

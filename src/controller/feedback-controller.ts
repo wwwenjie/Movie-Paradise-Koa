@@ -1,5 +1,6 @@
 import { body, prefix, request, summary, tagsAll } from 'koa-swagger-decorator/dist'
-import logger from '../core/log4js'
+import Config from '../config'
+import sendEmail from '../util/mail'
 
 @tagsAll('Feedback Controller')
 @prefix('/feedback')
@@ -7,13 +8,24 @@ export default class FeedbackController {
   @request('post', '')
   @summary('add feedback')
   @body({
-    name: { type: 'string', example: 'admin' },
-    email: { type: 'string', example: 'admin' },
-    password: { type: 'string', example: 'admin' }
+    category: { type: 'string', example: 'Suggest a feature' },
+    summary: { type: 'string', example: 'Feedback summary' },
+    detail: { type: 'string', example: 'Feedback detail (optional)' },
+    email: { type: 'string', example: 'User email (optional)' }
   })
   async addFeedback (ctx): Promise<void> {
-    // todo: send email
-    logger.info(ctx.request.body)
+    const { category, summary, detail, email } = ctx.request.body
+    // todo: html
+    await sendEmail(
+      Config.smtp.from,
+      'New Feedback',
+      `
+      Category: ${category}\n
+      Summary: ${summary}\n
+      Detail: ${detail}\n
+      Email: ${email}\n
+      `
+    )
     ctx.status = 204
   }
 }
