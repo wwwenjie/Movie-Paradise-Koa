@@ -8,6 +8,7 @@ import config from '../config'
 import OSS from '../util/oss'
 import * as fs from 'fs'
 import logger from '../core/log4js'
+import Validator from '../util/validator'
 
 interface UserService {
   login: (user: User) => Promise<User>
@@ -53,6 +54,9 @@ export default class UserServiceImpl implements UserService {
 
   async register (user: User): Promise<void> {
     await this.checkIndex(user)
+    Validator.email(user.email)
+    Validator.min(user.password, 8)
+    Validator.required(user.name)
     user.create_time = new Date()
     user.list = []
     user.like = []

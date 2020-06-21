@@ -53,7 +53,12 @@ const E = {
   UserNotFound: new CError({
     'en-US': 'Can not find this user',
     'zh-CN': '找不到此用户'
-  }, 40007, HTTP.NotFound),
+  }, 40008, HTTP.NotFound),
+
+  VerificationFailed: new CError({
+    'en-US': 'Verification failed',
+    'zh-CN': '验证未通过'
+  }, 40009, HTTP.BadRequest),
 
   OSSPutError: new CError({
     'en-US': 'Fail to upload this to our server',
