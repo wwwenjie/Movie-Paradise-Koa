@@ -64,4 +64,23 @@ export default class CommentController {
     offset = offset == null ? 0 : offset
     ctx.body = await commentService.getByUserId(ctx.params.userId, limit, offset)
   }
+
+  @request('patch', '/comments/{commentId}')
+  @body(commentProperties)
+  @path({
+    commentId: { type: 'string', required: true, description: 'comment id' }
+  })
+  @summary('update comment')
+  async updateComment (ctx): Promise<void> {
+    ctx.body = await commentService.update(ctx.request.body, ctx.request.header.authorization)
+  }
+
+  @request('delete', '/comments/{commentId}')
+  @path({
+    commentId: { type: 'string', required: true, description: 'comment id' }
+  })
+  @summary('delete comment')
+  async deleteComment (ctx): Promise<void> {
+    ctx.body = await commentService.delete(ctx.params.commentId, ctx.request.header.authorization)
+  }
 }

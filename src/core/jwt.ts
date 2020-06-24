@@ -55,8 +55,16 @@ function getUid (auth: string): string {
   return decoded.uid
 }
 
+function checkUid (auth: string, uid: string): void {
+  const authUid = this.getUid(auth)
+  if (authUid !== uid) {
+    throw E.AuthError
+  }
+}
+
 export {
   check,
   checkAdmin,
-  getUid
+  getUid,
+  checkUid
 }
