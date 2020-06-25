@@ -21,6 +21,8 @@ class GetMovieFromAPI {
   private static readonly invalid: Set<number> = new Set()
   private static readonly msg: object = { email: 'jinwenjie@live.com', msg: 'Hello, I am getting your data through program, because there is no robots, please contact me if it bothers you, sorry for the inconvenient' }
   private static readonly url: string = 'https://api.dianying.fm/movies?ids='
+  // you can input ids manually to let crawler crawl
+  private static readonly initIds: number[] = []
   private static new: number = 0
   private static movieService: MovieService
 
@@ -86,6 +88,9 @@ class GetMovieFromAPI {
         }
       })
       console.timeEnd('adding task')
+    })
+    this.initIds.forEach(id => {
+      this.task.add(id)
     })
   }
 
