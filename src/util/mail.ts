@@ -5,8 +5,8 @@ import Config from '../config'
 export default async function sendEmail (
   to: string,
   subject: string,
-  text: string,
-  html?
+  text?: string,
+  html?: string
 ): Promise<void> {
   const { from, host, port, secure, auth } = Config.smtp
   const transporter = mail.createTransport({

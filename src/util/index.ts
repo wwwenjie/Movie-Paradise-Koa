@@ -1,3 +1,6 @@
+import { performance } from 'perf_hooks'
+import logger from '../core/log4js'
+
 export function notNull (object: Object): boolean {
   return !(object === null || object === undefined)
 }
@@ -6,9 +9,14 @@ export function time () {
   return function (target: any, name: string, descriptor: PropertyDescriptor) {
     const func = descriptor.value
     descriptor.value = function (...args) {
-      console.time(`${name} running time`)
+      const start = performance.now()
       const results = func.apply(this, args)
-      console.timeEnd(`${name} running time`)
+      const end = performance.now()
+      if ((end - start) > 50.0) {
+        const str = `warning! ${name} running time: ${end - start} ms`
+        console.log(str)
+        logger.warn(str)
+      }
       return results
     }
   }
