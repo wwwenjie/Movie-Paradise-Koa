@@ -9,7 +9,7 @@ export default class Validator {
   }
 
   static min=(value: string, length: number): string => {
-    if (value.length > length) {
+    if (value.length >= length) {
       return value
     }
     throw E.VerificationFailed

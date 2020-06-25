@@ -69,6 +69,7 @@ export default class UserController {
   @path({
     uid: { type: 'string', required: true, description: 'user id' }
   })
+  @check(1)
   async uploadAvatar (ctx): Promise<void> {
     const file = ctx.request.files.avatar
     // extend name is unnecessary

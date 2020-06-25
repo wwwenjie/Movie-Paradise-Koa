@@ -3,7 +3,10 @@ import * as jwt from 'jsonwebtoken'
 import config from '../config'
 import CError from '../error/CError'
 
-const check = () => (
+/**
+ * @param index: the index of uid in url(from right to left). 0 means last one, 1 means second last...
+ */
+const check = (index = 0) => (
   target: any,
   name: string,
   descriptor: PropertyDescriptor
@@ -14,9 +17,11 @@ const check = () => (
     if (auth === undefined) {
       throw E.AuthRequired
     }
-    const url: string = args[0].request.url
-    // todo: diff url support
-    const uid: string = url.substring(url.lastIndexOf('/') + 1)
+    const urlArray: string[] = args[0].request.url.split('/')
+    let uid: string
+    for (let i = 0; i <= index; i++) {
+      uid = urlArray.pop()
+    }
     if (uid !== getUid(auth)) {
       throw E.Forbidden
     }
