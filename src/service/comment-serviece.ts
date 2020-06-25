@@ -1,15 +1,15 @@
 import Comment from '../entity/mongodb/comment'
 import { ObjectID } from 'mongodb'
 import { getConnection } from 'typeorm'
-import { checkUid } from '../core/jwt'
 
 interface CommentService {
   creat: (comment: Comment) => Promise<void>
-  update: (comment: Comment, auth: string) => Promise<void>
-  delete: (id: string, auth: string) => Promise<void>
+  update: (comment: Comment) => Promise<void>
+  delete: (id: string) => Promise<void>
   getCommentList: (limit: string, offset: string) => Promise<Comment[]>
   getByMovieId: (movieId: string, limit: string, offset: string) => Promise<Comment[]>
   getByUserId: (userId: string, limit: string, offset: string) => Promise<Comment[]>
+  getByCommentId: (id: string) => Promise<Comment>
 }
 
 export default class CommentServiceImpl implements CommentService {
@@ -21,12 +21,7 @@ export default class CommentServiceImpl implements CommentService {
     await this.commentRepository.insertOne(comment)
   }
 
-  async update (comment: Comment, auth: string): Promise<void> {
-    // dont believe request's user_id
-    // hackers can register user and give right auth and user_id to delete comment not belong them
-    // get user_id from database
-    const commentRes = await this.commentRepository.findOne(ObjectID(comment._id))
-    checkUid(auth, commentRes.user_id)
+  async update (comment: Comment): Promise<void> {
     const id = comment._id
     delete comment._id
     comment.update_time = new Date()
@@ -35,9 +30,7 @@ export default class CommentServiceImpl implements CommentService {
     })
   }
 
-  async delete (id: string, auth: string): Promise<void> {
-    const comment = await this.commentRepository.findOne(ObjectID(id))
-    checkUid(auth, comment.user_id)
+  async delete (id: string): Promise<void> {
     await this.commentRepository.deleteOne({
       _id: ObjectID(id)
     })
@@ -77,5 +70,9 @@ export default class CommentServiceImpl implements CommentService {
       take: parseInt(limit),
       skip: parseInt(offset)
     })
+  }
+
+  async getByCommentId (id): Promise<Comment> {
+    return this.commentRepository.findOne(ObjectID(id))
   }
 }

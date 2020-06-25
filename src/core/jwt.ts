@@ -50,6 +50,9 @@ const checkAdmin = () => (
 }
 
 function getUid (auth: string): string {
+  if (auth === undefined) {
+    throw E.AuthRequired
+  }
   const token: string = auth.trim().split(' ').pop()
   let decoded
   try {
@@ -60,7 +63,7 @@ function getUid (auth: string): string {
   return decoded.uid
 }
 
-function checkUid (auth: string, uid: string): void {
+function checkUid (uid: string, auth: string): void {
   const authUid = this.getUid(auth)
   if (authUid !== uid) {
     throw E.AuthError

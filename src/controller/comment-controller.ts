@@ -1,7 +1,8 @@
 import { body, path, query, request, responses, summary, tagsAll } from 'koa-swagger-decorator/dist'
 import { commentArraySchema, commentProperties } from './swagger-definition'
 import CommentServiceImpl from '../service/comment-serviece'
-import { checkAdmin, getUid } from '../core/jwt'
+import { checkAdmin, checkUid, getUid } from '../core/jwt'
+import Comment from '../entity/mongodb/comment'
 
 const commentService = new CommentServiceImpl()
 
@@ -12,7 +13,7 @@ export default class CommentController {
   @summary('add a comment')
   async creatComment (ctx): Promise<void> {
     // check token valid
-    getUid(ctx.request.header.authorization)
+    getUid(ctx.auth)
     ctx.body = await commentService.creat(ctx.request.body)
   }
 
@@ -72,7 +73,10 @@ export default class CommentController {
   })
   @summary('update comment')
   async updateComment (ctx): Promise<void> {
-    ctx.body = await commentService.update(ctx.request.body, ctx.request.header.authorization)
+    const comment: Comment = ctx.request.body
+    const commentRes = await commentService.getByCommentId(comment._id)
+    checkUid(commentRes.user_id, ctx.auth)
+    ctx.body = await commentService.update(comment)
   }
 
   @request('delete', '/comments/{commentId}')
@@ -81,6 +85,8 @@ export default class CommentController {
   })
   @summary('delete comment')
   async deleteComment (ctx): Promise<void> {
-    ctx.body = await commentService.delete(ctx.params.commentId, ctx.request.header.authorization)
+    const commentRes = await commentService.getByCommentId(ctx.params.commentId)
+    checkUid(commentRes.user_id, ctx.auth)
+    ctx.body = await commentService.delete(ctx.params.commentId)
   }
 }

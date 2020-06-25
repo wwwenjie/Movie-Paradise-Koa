@@ -73,7 +73,7 @@ export default class UserController {
   async uploadAvatar (ctx): Promise<void> {
     const file = ctx.request.files.avatar
     // extend name is unnecessary
-    file.name = getUid(ctx.request.header.authorization)
+    file.name = getUid(ctx.auth)
     ctx.body = await userService.uploadAvatar(file)
   }
 

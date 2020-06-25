@@ -30,6 +30,7 @@ export default class InitManager {
   public static async initLoadErrorHandler (): Promise<void> {
     InitManager.app.use(async (ctx, next) => {
       try {
+        ctx.auth = ctx.request.header.authorization
         await next()
       } catch (error) {
         if (error instanceof CError) {
