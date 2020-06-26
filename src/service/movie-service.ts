@@ -31,7 +31,7 @@ interface MovieService {
 }
 
 export default class MovieServiceImpl implements MovieService {
-  // return 10 of high score, new movies, front end will store its id to make sure it wont change in one day
+  // return a high score, new movie, front end will store it to make sure it wont change in one day
   async getToday (): Promise<Movie> {
     const movies = await Movie.find({
       where: {
@@ -105,12 +105,13 @@ export default class MovieServiceImpl implements MovieService {
         where: {
           title: Like(`%${keyword}%`)
         },
-        // only take 12 to make user search more clearly
-        take: 12
+        // only take 20 to make user search more clearly
+        take: 20
       })
     } else {
       return Movie.find({
         where: {
+          // need mysql 8 to optimize speed, if use mysql 5, separate the keyword to query
           title_en: Like(`%${keyword}%`)
         },
         take: 12

@@ -23,6 +23,9 @@ export default class User {
   avatar: string
 
   @Column()
+  admin: boolean
+
+  @Column()
   interests: [string]
 
   @Column()

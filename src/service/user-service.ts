@@ -23,6 +23,8 @@ interface UserService {
 
   getByUid: (uid: string) => Promise<User>
 
+  getAdminUid: () => Promise<string[]>
+
   getUserList: (limit: string, offset: string) => Promise<User[]>
 }
 
@@ -35,9 +37,11 @@ export default class UserServiceImpl implements UserService {
     })
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (result !== undefined && await bcrypt.compare(user.password, result.password)) {
-      // !permanent valid
+      // warn: permanent valid
+      const adminUid = await this.getAdminUid()
       const token = jwt.sign({
-        uid: result._id
+        uid: result._id,
+        admin: adminUid.includes(result._id.toString()) ? true : undefined
       },
       config.jwtSecret,
       {
@@ -130,6 +134,16 @@ export default class UserServiceImpl implements UserService {
     delete user.email
     delete user.password
     return user
+  }
+
+  async getAdminUid (): Promise<string[]> {
+    const users = await this.userRepository.find({
+      select: ['_id'],
+      where: {
+        admin: true
+      }
+    })
+    return users.map(user => user._id.toString())
   }
 
   async getUserList (limit: string = '8', offset: string = '0'): Promise<User[]> {

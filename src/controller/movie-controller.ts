@@ -2,6 +2,7 @@ import MovieServiceImpl from '../service/movie-service'
 import { body, path, prefix, query, request, responses, summary, tagsAll } from 'koa-swagger-decorator/dist'
 import { movieSchema, movieArraySchema, pagingQuery, getMoviesQuery, movieProperties } from './swagger-definition'
 import { time } from '../util'
+import {checkAdmin} from "../core/jwt";
 
 const movieService = new MovieServiceImpl()
 
@@ -36,6 +37,7 @@ export default class MovieController {
   @request('put', '')
   @body(movieProperties)
   @summary('update a movie (fully)')
+  @checkAdmin()
   @time()
   async updateMovie (ctx): Promise<void> {
     await movieService.update(ctx.request.body)
@@ -43,8 +45,8 @@ export default class MovieController {
   }
 
   @request('get', '/today')
-  @summary('get today movies (10 of high score, new movies)')
-  @responses({ 200: { description: 'today movies array', schema: movieArraySchema } })
+  @summary('get today movie (high score, new movie)')
+  @responses({ 200: { description: 'today movie', schema: movieProperties } })
   @time()
   async getToday (ctx): Promise<void> {
     ctx.body = await movieService.getToday()

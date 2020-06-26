@@ -40,9 +40,10 @@ const checkAdmin = () => (
     if (auth === undefined) {
       throw E.AuthRequired
     }
-    // todo: get adminUid
-    const adminUid = ['1', '2']
-    if (!adminUid.includes(getUid(auth))) {
+    // check if auth is okay
+    getUid(auth)
+    const decoded: any = jwt.verify(auth, config.jwtSecret)
+    if (decoded.admin !== true) {
       throw E.Forbidden
     }
     return func.apply(this, args)
