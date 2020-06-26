@@ -4,11 +4,17 @@ import { getConnection } from 'typeorm'
 
 interface CommentService {
   creat: (comment: Comment) => Promise<void>
+
   update: (comment: Comment) => Promise<void>
+
   delete: (id: string) => Promise<void>
+
   getCommentList: (limit: string, offset: string) => Promise<Comment[]>
+
   getByMovieId: (movieId: string, limit: string, offset: string) => Promise<Comment[]>
+
   getByUserId: (userId: string, limit: string, offset: string) => Promise<Comment[]>
+
   getByCommentId: (id: string) => Promise<Comment>
 }
 
@@ -36,7 +42,7 @@ export default class CommentServiceImpl implements CommentService {
     })
   }
 
-  async getCommentList (limit: string, offset: string): Promise<Comment[]> {
+  async getCommentList (limit: string = '10', offset: string = '0'): Promise<Comment[]> {
     return this.commentRepository.find({
       order: {
         update_time: 'DESC'
@@ -46,7 +52,7 @@ export default class CommentServiceImpl implements CommentService {
     })
   }
 
-  async getByMovieId (movieId: string, limit: string, offset: string): Promise<Comment[]> {
+  async getByMovieId (movieId: string, limit: string = '6', offset: string = '0'): Promise<Comment[]> {
     return this.commentRepository.find({
       where: {
         movie_id: parseInt(movieId)
@@ -59,7 +65,7 @@ export default class CommentServiceImpl implements CommentService {
     })
   }
 
-  async getByUserId (userId: string, limit: string, offset: string): Promise<Comment[]> {
+  async getByUserId (userId: string, limit: string = '6', offset: string = '0'): Promise<Comment[]> {
     return this.commentRepository.find({
       where: {
         user_id: userId
