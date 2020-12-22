@@ -1,5 +1,7 @@
 # Movie Paradise Koa
 
+warning: this repo is deprecated, move to [Movie Paradise](https://github.com/wwwenjie/movie-paradise) to check latest update
+
 > Back end of [Movie Paradise](https://github.com/wwwenjie/movie-paradise)
 
 ## Introduction
